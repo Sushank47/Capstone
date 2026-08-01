@@ -194,7 +194,9 @@ const AppContent: React.FC = () => {
           )
         )}
 
-        {activeTab === 'security' && <ConsentManager />}
+        {activeTab === 'security' && (
+          <ConsentManager openAuthModal={() => setIsAuthModalOpen(true)} />
+        )}
 
         {activeTab === 'admin' && user?.role === 'ADMIN' && <AdminDashboard />}
 

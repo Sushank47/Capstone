@@ -2,25 +2,46 @@ import React, { useEffect, useState } from 'react';
 import type { AccessRequest, AuditLog } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldCheck, Lock, CheckCircle2, XCircle, Clock, AlertTriangle, Key, Eye } from 'lucide-react';
+import { ShieldCheck, Lock, Clock, Eye, LogIn } from 'lucide-react';
 import { MedicalDisclaimer } from '../common/MedicalDisclaimer';
 
-export const ConsentManager: React.FC = () => {
+interface Props {
+  openAuthModal?: () => void;
+}
+
+export const ConsentManager: React.FC<Props> = ({ openAuthModal }) => {
   const { user } = useAuth();
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchConsentData = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
-      const [reqRes, auditRes] = await Promise.all([
+      const [reqRes, auditRes] = await Promise.allSettled([
         api.get<AccessRequest[]>('/api/consent/requests'),
         api.get<AuditLog[]>('/api/audit'),
       ]);
-      setRequests(reqRes.data);
-      setAuditLogs(auditRes.data);
-    } catch {
-      console.error('Failed to load consent & audit logs');
+
+      if (reqRes.status === 'fulfilled' && Array.isArray(reqRes.value.data)) {
+        setRequests(reqRes.value.data);
+      } else {
+        setRequests([]);
+      }
+
+      if (auditRes.status === 'fulfilled' && Array.isArray(auditRes.value.data)) {
+        setAuditLogs(auditRes.value.data);
+      } else {
+        setAuditLogs([]);
+      }
+    } catch (e) {
+      console.error('Failed to load consent & audit logs', e);
+      setRequests([]);
+      setAuditLogs([]);
     } finally {
       setLoading(false);
     }
@@ -28,7 +49,7 @@ export const ConsentManager: React.FC = () => {
 
   useEffect(() => {
     fetchConsentData();
-  }, []);
+  }, [user]);
 
   const handleAction = async (requestId: string, action: 'APPROVE' | 'REJECT' | 'REVOKE') => {
     try {
@@ -39,8 +60,33 @@ export const ConsentManager: React.FC = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="py-16 text-center space-y-4 clean-card rounded-2xl border border-slate-200 dark:border-slate-800 p-8">
+        <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto">
+          <Lock className="w-6 h-6" />
+        </div>
+        <div>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">Zero-Trust Patient Consent Center</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1 font-medium">
+            Please sign in to manage doctor permissions, administrative access requests, and inspect your immutable security audit logs.
+          </p>
+        </div>
+        {openAuthModal && (
+          <button
+            onClick={openAuthModal}
+            className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all inline-flex items-center gap-2"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In / Register</span>
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-300">
       
       {/* Zero-Trust Architecture Notice Banner */}
       <div className="clean-card p-6 rounded-2xl border border-teal-500/30 bg-gradient-to-r dark:from-slate-900 dark:via-teal-950/20 dark:to-slate-900 from-teal-900 via-slate-900 to-teal-950 text-white">
@@ -55,7 +101,7 @@ export const ConsentManager: React.FC = () => {
                 ACTIVE
               </span>
             </h3>
-            <p className="text-xs text-slate-200 leading-relaxed mt-1">
+            <p className="text-xs text-slate-200 leading-relaxed mt-1 font-medium">
               Your medical documents are strictly isolated in your encrypted partition. Administrators, doctors, or third parties 
               <strong> cannot access, view, download, or index your medical files</strong> without your explicit, time-bounded approval. 
               Every access request requires a mandatory reason, and all access events are written to an immutable audit trail.
@@ -70,8 +116,8 @@ export const ConsentManager: React.FC = () => {
           <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-teal-400" /> Administrative Access Requests
         </h3>
 
-        {requests.length === 0 ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400 py-4">No access requests found.</p>
+        {!requests || requests.length === 0 ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400 py-4 font-medium">No access requests found.</p>
         ) : (
           <div className="space-y-3">
             {requests.map((req) => (
@@ -81,23 +127,23 @@ export const ConsentManager: React.FC = () => {
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-slate-900 dark:text-white">{req.requester_name}</span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
-                      {req.requester_role}
+                    <span className="font-bold text-xs text-slate-900 dark:text-white">{req.requester_name || req.patient_email || 'User'}</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/30">
+                      {req.requester_role || 'ADMIN'}
                     </span>
                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
                       req.status === 'APPROVED'
-                        ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                        ? 'bg-emerald-500/20 text-emerald-900 dark:text-emerald-300'
                         : req.status === 'REJECTED' || req.status === 'REVOKED'
-                        ? 'bg-rose-500/20 text-rose-800 dark:text-rose-300'
-                        : 'bg-amber-500/20 text-amber-800 dark:text-amber-300'
+                        ? 'bg-rose-500/20 text-rose-900 dark:text-rose-300'
+                        : 'bg-amber-500/20 text-amber-900 dark:text-amber-300'
                     }`}>
                       {req.status}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">Reason: "{req.reason}"</p>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">Reason: "{req.reason}"</p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                    Requested on {new Date(req.created_at).toLocaleString()}
+                    Requested on {req.created_at ? new Date(req.created_at).toLocaleString() : 'Recent'}
                   </p>
                 </div>
 
@@ -139,8 +185,8 @@ export const ConsentManager: React.FC = () => {
           <Clock className="w-5 h-5 text-cyan-600 dark:text-cyan-400" /> Immutable Security Audit Logs
         </h3>
 
-        {auditLogs.length === 0 ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400 py-4">No audit logs recorded.</p>
+        {!auditLogs || auditLogs.length === 0 ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400 py-4 font-medium">No audit logs recorded.</p>
         ) : (
           <div className="space-y-2">
             {auditLogs.map((log) => (
@@ -151,12 +197,12 @@ export const ConsentManager: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                   <div>
-                    <span className="font-bold text-slate-900 dark:text-white">{log.actor_email}</span>
-                    <span className="text-slate-600 dark:text-slate-300 ml-2 font-medium">[{log.action_type}] - {log.details}</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{log.actor_email || log.performed_by_name || 'System'}</span>
+                    <span className="text-slate-700 dark:text-slate-300 ml-2 font-medium">[{log.action_type || log.action}] - {log.details || 'Event logged'}</span>
                   </div>
                 </div>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-medium">
-                  {new Date(log.timestamp).toLocaleTimeString()}
+                  {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Recent'}
                 </span>
               </div>
             ))}
