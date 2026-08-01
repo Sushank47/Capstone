@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: mediexplain-backend
+    env: python
+    region: oregon
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: MONGODB_URL
+        sync: false
+      - key: DATABASE_NAME
+        value: mediexplain_db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: AZURE_VISION_ENDPOINT
+        sync: false
+      - key: AZURE_VISION_KEY
+        sync: false
+      - key: AZURE_LANGUAGE_ENDPOINT
+        sync: false
+      - key: AZURE_LANGUAGE_KEY
+        sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_KEY
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT_NAME
+        value: faqbot-openai
+      - key: AZURE_SEARCH_ENDPOINT
+        sync: false
+      - key: AZURE_SEARCH_KEY
+        sync: false
+      - key: AZURE_SEARCH_INDEX_NAME
+        value: documents
