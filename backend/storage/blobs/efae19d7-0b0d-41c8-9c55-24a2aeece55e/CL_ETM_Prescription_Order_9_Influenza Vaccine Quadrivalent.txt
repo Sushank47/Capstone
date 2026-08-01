@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #9
+Medication Drug Name: Influenza Vaccine Quadrivalent
+Strength & Form: 0.5 mL Syringe
+Dosage: 0.5 mL
+Route of Administration: IM
+Doses per 24 Hours: 0.0
+NDC Code: 19515089452

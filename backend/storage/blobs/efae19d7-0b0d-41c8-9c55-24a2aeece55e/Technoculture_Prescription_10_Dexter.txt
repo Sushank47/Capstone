@@ -1,0 +1,90 @@
+PRESCRIPTION ENCOUNTER RECORD - DEXTER
+Patient MRN: f142af36-8fa0-2123-ecef-29b9673a695d
+Age: 29 | Gender: male
+Attending Physician: Dr. Ahmed109 Feil794
+Primary Diagnosis / Reason: Essential hypertension (disorder)
+Observations: [
+  {
+    "resourceType": "Observation",
+    "id": "a64e3d18-9ac7-8a06-41bb-877c4913b305",
+    "meta": {
+      "profile": [
+        "http://hl7.org/fhir/us/core/StructureDefinition/us-core-blood-pressure"
+      ]
+    },
+    "status": "final",
+    "subject": {
+      "reference": "urn:uuid:f142af36-8fa0-2123-ecef-29b9673a695d"
+    },
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+            "code": "vital-signs",
+            "display": "Vital signs"
+          }
+        ],
+        "text": null
+      }
+    ],
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "85354-9",
+          "display": "Blood pressure panel with all children optional",
+          "version": null
+        }
+      ],
+      "text": "Blood pressure panel with all children optional"
+    },
+    "encounter": {
+      "reference": "urn:uuid:ce330d31-e225-a7f6-a6d2-c0f7b4480f1e"
+    },
+    "effectiveDateTime": "2015-08-24T00:57:22+05:30",
+    "issued": "2015-08-24T00:57:22.906+05:30",
+    "component": [
+      {
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8462-4",
+              "display": "Diastolic Blood Pressure"
+            }
+          ],
+          "text": "Diastolic Blood Pressure"
+        },
+        "valueQuantity": {
+          "value": 102,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        },
+        "valueCodeableConcept": null,
+        "valueString": null
+      },
+      {
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "8480-6",
+              "display": "Systolic Blood Pressure"
+            }
+          ],
+          "text": "Systolic Blood Pressure"
+        },
+        "valueQuantity": {
+          "value": 137,
+          "unit": "mm[Hg]",
+          "system": "http://unitsofmeasure.org",
+          "code": "mm[Hg]"
+        },
+        "valueCodeableConcept": null,
+        "valueString": null
+      }
+    ]
+  }
+]

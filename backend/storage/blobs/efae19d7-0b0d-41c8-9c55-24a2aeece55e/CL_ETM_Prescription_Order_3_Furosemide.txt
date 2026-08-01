@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #3
+Medication Drug Name: Furosemide
+Strength & Form: 20mg Tablet
+Dosage: 20 mg
+Route of Administration: PO/NG
+Doses per 24 Hours: 1.0
+NDC Code: 51079007220

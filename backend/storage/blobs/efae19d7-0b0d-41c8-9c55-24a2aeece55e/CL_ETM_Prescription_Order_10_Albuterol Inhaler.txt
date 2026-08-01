@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #10
+Medication Drug Name: Albuterol Inhaler
+Strength & Form: 8 g Inhaler
+Dosage: 2 PUFF
+Route of Administration: IH
+Doses per 24 Hours: None
+NDC Code: 00173068224

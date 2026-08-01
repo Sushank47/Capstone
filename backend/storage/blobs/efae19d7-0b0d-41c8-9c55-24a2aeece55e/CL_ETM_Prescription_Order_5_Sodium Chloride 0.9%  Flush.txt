@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #5
+Medication Drug Name: Sodium Chloride 0.9%  Flush
+Strength & Form: 10 mL Syringe
+Dosage: 3 mL
+Route of Administration: IV
+Doses per 24 Hours: 3.0
+NDC Code: 0

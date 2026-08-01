@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #4
+Medication Drug Name: Potassium Chloride
+Strength & Form: 10mEq ER Tablet
+Dosage: 40 mEq
+Route of Administration: PO
+Doses per 24 Hours: 1.0
+NDC Code: 00245004101

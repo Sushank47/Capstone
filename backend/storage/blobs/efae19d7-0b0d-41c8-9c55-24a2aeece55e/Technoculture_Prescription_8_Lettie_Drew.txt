@@ -1,0 +1,55 @@
+PRESCRIPTION ENCOUNTER RECORD - LETTIE DREW
+Patient MRN: c8a0e16f-8c73-0e20-8961-93dcb62f04ed
+Age: 22 | Gender: female
+Attending Physician: Dr. Venice604 Rogahn59
+Primary Diagnosis / Reason: Acute viral pharyngitis (disorder)
+Observations: [
+  {
+    "resourceType": "Observation",
+    "id": "14694ebb-47e8-56df-d4c9-a956cbc2ff98",
+    "status": "final",
+    "subject": {
+      "reference": "urn:uuid:c8a0e16f-8c73-0e20-8961-93dcb62f04ed"
+    },
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+            "code": "vital-signs",
+            "display": "Vital signs"
+          }
+        ],
+        "text": null
+      }
+    ],
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "8310-5",
+          "display": "Body temperature",
+          "version": null
+        },
+        {
+          "system": "http://loinc.org",
+          "code": "8331-1",
+          "display": "Oral temperature",
+          "version": null
+        }
+      ],
+      "text": "Body temperature"
+    },
+    "encounter": {
+      "reference": "urn:uuid:b75aa327-a7c0-1f7c-30e3-63db0d2030ab"
+    },
+    "effectiveDateTime": "2019-06-23T18:37:57+05:30",
+    "issued": "2019-06-23T18:37:57.911+05:30",
+    "valueQuantity": {
+      "value": 37.858,
+      "unit": "Cel",
+      "system": "http://unitsofmeasure.org",
+      "code": "Cel"
+    }
+  }
+]

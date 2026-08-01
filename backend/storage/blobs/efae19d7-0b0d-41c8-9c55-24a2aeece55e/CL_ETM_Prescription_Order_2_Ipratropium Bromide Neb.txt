@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #2
+Medication Drug Name: Ipratropium Bromide Neb
+Strength & Form: 2.5mL Vial
+Dosage: 1 NEB
+Route of Administration: IH
+Doses per 24 Hours: 4.0
+NDC Code: 00487980125

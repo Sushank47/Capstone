@@ -1,0 +1,27 @@
+# Environment & Secrets
+.env
+.env.local
+*.env
+
+# Python Virtual Environments & Caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Node & Frontend Build Output
+node_modules/
+dist/
+build/
+.output/
+
+# macOS / OS files
+.DS_Store
+Thumbs.db
+
+# Storage / Temp files
+storage/temp/
+*.log

@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #6
+Medication Drug Name: Raltegravir
+Strength & Form: 400 mg Tablet
+Dosage: 400 mg
+Route of Administration: PO
+Doses per 24 Hours: 2.0
+NDC Code: 00006022761

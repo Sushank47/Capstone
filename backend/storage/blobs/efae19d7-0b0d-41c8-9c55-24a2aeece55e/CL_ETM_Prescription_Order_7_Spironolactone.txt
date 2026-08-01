@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #7
+Medication Drug Name: Spironolactone
+Strength & Form: 25mg Tablet
+Dosage: 50 mg
+Route of Administration: PO/NG
+Doses per 24 Hours: 1.0
+NDC Code: 63739054410

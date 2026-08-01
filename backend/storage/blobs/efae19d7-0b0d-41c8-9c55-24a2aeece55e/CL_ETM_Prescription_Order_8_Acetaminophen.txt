@@ -1,0 +1,7 @@
+CLINICAL PRESCRIPTION ORDER #8
+Medication Drug Name: Acetaminophen
+Strength & Form: 500mg Tablet
+Dosage: 500 mg
+Route of Administration: PO/NG
+Doses per 24 Hours: None
+NDC Code: 00904198861

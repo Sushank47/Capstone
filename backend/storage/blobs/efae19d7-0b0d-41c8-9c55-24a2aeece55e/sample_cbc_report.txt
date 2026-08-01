@@ -1,0 +1,8 @@
+COMPLETE BLOOD COUNT & METABOLIC DATASET SAMPLE
+Patient ID: PT-10029 | Date: 2026-08-01
+--------------------------------------------------
+Hemoglobin: 11.2 g/dL (Low)
+Fasting Blood Sugar: 118 mg/dL (Elevated)
+Serum Creatinine: 0.9 mg/dL (Normal)
+Total Cholesterol: 215 mg/dL (High)
+Prescription: Ferrous Sulfate 325 mg oral daily.

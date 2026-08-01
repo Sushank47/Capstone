@@ -1,0 +1,91 @@
+PRESCRIPTION ENCOUNTER RECORD - LEONIA ROXIE
+Patient MRN: b0dba817-cfc9-bdc2-460e-b374c6401d13
+Age: 63 | Gender: female
+Attending Physician: Dr. Leif534 Hane680
+Primary Diagnosis / Reason: Chronic kidney disease stage 4 (disorder)
+Observations: [
+  {
+    "resourceType": "Observation",
+    "id": "930c87a4-aca0-4533-59e4-536443da5047",
+    "status": "final",
+    "subject": {
+      "reference": "urn:uuid:b0dba817-cfc9-bdc2-460e-b374c6401d13"
+    },
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+            "code": "vital-signs",
+            "display": "Vital signs"
+          }
+        ],
+        "text": null
+      }
+    ],
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "74006-8",
+          "display": "Weight difference [Mass difference] --pre dialysis - post dialysis",
+          "version": null
+        }
+      ],
+      "text": "Weight difference [Mass difference] --pre dialysis - post dialysis"
+    },
+    "encounter": {
+      "reference": "urn:uuid:725ab579-4ff0-1ee0-d83c-9f47fa32c710"
+    },
+    "effectiveDateTime": "2016-09-09T23:36:17+05:30",
+    "issued": "2016-09-09T23:36:17.026+05:30",
+    "valueQuantity": {
+      "value": 3.2827,
+      "unit": "kg",
+      "system": "http://unitsofmeasure.org",
+      "code": "kg"
+    }
+  },
+  {
+    "resourceType": "Observation",
+    "id": "19672f0e-e9d7-4a31-9bce-28281bcdbc10",
+    "status": "final",
+    "subject": {
+      "reference": "urn:uuid:b0dba817-cfc9-bdc2-460e-b374c6401d13"
+    },
+    "category": [
+      {
+        "coding": [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+            "code": "vital-signs",
+            "display": "Vital signs"
+          }
+        ],
+        "text": null
+      }
+    ],
+    "code": {
+      "coding": [
+        {
+          "system": "http://loinc.org",
+          "code": "72514-3",
+          "display": "Pain severity - 0-10 verbal numeric rating [Score] - Reported",
+          "version": null
+        }
+      ],
+      "text": "Pain severity - 0-10 verbal numeric rating [Score] - Reported"
+    },
+    "encounter": {
+      "reference": "urn:uuid:725ab579-4ff0-1ee0-d83c-9f47fa32c710"
+    },
+    "effectiveDateTime": "2016-09-09T23:36:17+05:30",
+    "issued": "2016-09-09T23:36:17.026+05:30",
+    "valueQuantity": {
+      "value": 5.0,
+      "unit": "{score}",
+      "system": "http://unitsofmeasure.org",
+      "code": "{score}"
+    }
+  }
+]
