@@ -60,6 +60,20 @@ export const ConsentManager: React.FC<Props> = ({ openAuthModal }) => {
     }
   };
 
+  const renderDetails = (details: any, reason?: string) => {
+    if (typeof details === 'string' && details.trim()) return details;
+    if (details && typeof details === 'object') {
+      if (details.reason) return String(details.reason);
+      if (details.message) return String(details.message);
+      try {
+        return JSON.stringify(details);
+      } catch {
+        return 'Security event recorded';
+      }
+    }
+    return reason || 'Security audit log entry recorded';
+  };
+
   if (!user) {
     return (
       <div className="py-16 text-center space-y-4 clean-card rounded-2xl border border-slate-200 dark:border-slate-800 p-8">
@@ -127,9 +141,9 @@ export const ConsentManager: React.FC<Props> = ({ openAuthModal }) => {
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-slate-900 dark:text-white">{req.requester_name || req.patient_email || 'User'}</span>
+                    <span className="font-bold text-xs text-slate-900 dark:text-white">{req.admin_name || req.patient_email || 'User'}</span>
                     <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-900 dark:text-amber-300 border border-amber-500/30">
-                      {req.requester_role || 'ADMIN'}
+                      ADMIN
                     </span>
                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
                       req.status === 'APPROVED'
@@ -197,8 +211,8 @@ export const ConsentManager: React.FC<Props> = ({ openAuthModal }) => {
                 <div className="flex items-center gap-2">
                   <Eye className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                   <div>
-                    <span className="font-bold text-slate-900 dark:text-white">{log.actor_email || log.performed_by_name || 'System'}</span>
-                    <span className="text-slate-700 dark:text-slate-300 ml-2 font-medium">[{log.action_type || log.action}] - {log.details || 'Event logged'}</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{log.performed_by_name || log.performed_by_id || 'System'}</span>
+                    <span className="text-slate-700 dark:text-slate-300 ml-2 font-medium">[{log.action || 'SECURITY'}] - {renderDetails(log.details, log.reason)}</span>
                   </div>
                 </div>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-medium">
