@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import type { Document, DocumentCategory } from '../../types';
+import type { Document } from '../../types';
 import { api } from '../../services/api';
 import {
   FileText,
   Search,
-  Filter,
   Star,
   Download,
   Trash2,
@@ -72,17 +71,17 @@ export const DocumentList: React.FC<Props> = ({
     <div className="space-y-6">
       
       {/* Search & Filter Header Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 glass-panel p-4 rounded-2xl border border-slate-700/60">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 clean-card p-4 rounded-2xl border dark:border-slate-800 border-slate-200">
         
         {/* Search Input */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search reports, tags, lab values..."
-            className="w-full pl-9 pr-4 py-2 bg-slate-950/60 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-500"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/60 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500"
           />
         </div>
 
@@ -91,7 +90,7 @@ export const DocumentList: React.FC<Props> = ({
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 bg-slate-950/60 border border-slate-700 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-teal-500"
+            className="px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/60 dark:border-slate-700 dark:text-slate-200 rounded-xl text-xs focus:outline-none focus:border-teal-500"
           >
             <option value="ALL">All Categories</option>
             <option value="Blood Report">Blood Report</option>
@@ -108,28 +107,32 @@ export const DocumentList: React.FC<Props> = ({
             onClick={() => setFavoriteOnly(!favoriteOnly)}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-colors ${
               favoriteOnly
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                : 'bg-slate-950/60 text-slate-400 border-slate-700 hover:text-white'
+                ? 'bg-amber-500/20 text-amber-600 dark:text-amber-300 border-amber-500/40'
+                : 'bg-slate-50 text-slate-600 border-slate-300 dark:bg-slate-950/60 dark:text-slate-400 dark:border-slate-700 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Star className={`w-3.5 h-3.5 ${favoriteOnly ? 'fill-amber-400 text-amber-400' : ''}`} />
+            <Star className={`w-3.5 h-3.5 ${favoriteOnly ? 'fill-amber-400 text-amber-500' : ''}`} />
             <span>Starred</span>
           </button>
 
           {/* View Toggle */}
-          <div className="flex items-center bg-slate-950/60 p-1 rounded-xl border border-slate-700">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-950/60 p-1 rounded-xl border border-slate-300 dark:border-slate-700">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'grid' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-500 hover:text-white'
+              className={`p-1.5 rounded-lg text-xs transition-colors ${
+                viewMode === 'grid'
+                  ? 'bg-teal-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Grid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-lg transition-colors ${
-                viewMode === 'list' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-500 hover:text-white'
+              className={`p-1.5 rounded-lg text-xs transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-teal-500 text-slate-950 font-bold shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <ListIcon className="w-4 h-4" />
@@ -138,133 +141,124 @@ export const DocumentList: React.FC<Props> = ({
 
           <button
             onClick={openUploadModal}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all shrink-0 ml-auto sm:ml-0"
+            className="px-3.5 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
           >
-            <Plus className="w-4 h-4" />
-            <span>Upload</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Upload Report</span>
           </button>
         </div>
+
       </div>
 
-      {/* Document Grid/List Container */}
+      {/* Document Grid / List View */}
       {filteredDocs.length === 0 ? (
-        <div className="text-center py-16 glass-panel rounded-2xl border border-slate-800">
-          <FileText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <h4 className="text-base font-bold text-white">No Medical Documents Found</h4>
-          <p className="text-xs text-slate-400 mt-1 mb-4">
-            Upload your blood reports, prescriptions, or X-rays to get started with Azure AI explanations.
+        <div className="py-16 text-center clean-card rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto">
+            <FileText className="w-6 h-6" />
+          </div>
+          <h4 className="font-bold text-slate-900 dark:text-white text-base">No Documents Found</h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            No medical reports match your search criteria. Click 'Upload Report' to add new blood work or prescriptions.
           </p>
-          <button
-            onClick={openUploadModal}
-            className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs transition-all"
-          >
-            Upload First Report
-          </button>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredDocs.map((doc) => (
             <div
               key={doc.id}
               onClick={() => onSelectDocument(doc)}
-              className="group glass-card p-5 rounded-2xl border border-slate-800 hover:border-teal-500/40 transition-all duration-200 cursor-pointer relative flex flex-col justify-between hover:shadow-xl hover:shadow-teal-500/5"
+              className="group cursor-pointer clean-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-teal-500/50 transition-all flex flex-col justify-between space-y-4"
             >
               <div>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 group-hover:scale-105 transition-transform">
-                    <FileText className="w-5 h-5" />
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <h4 className="font-bold text-xs text-slate-900 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-300 transition-colors">
+                        {doc.file_name}
+                      </h4>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                        <Calendar className="w-3 h-3" /> {new Date(doc.uploaded_at).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => handleToggleFavorite(doc, e)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-amber-400 hover:bg-slate-800 transition-colors"
-                    >
-                      <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-amber-400 text-amber-400' : ''}`} />
-                    </button>
-                    <button
-                      onClick={(e) => handleDelete(doc, e)}
-                      className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+
+                  <button
+                    onClick={(e) => handleToggleFavorite(doc, e)}
+                    className="text-slate-400 hover:text-amber-400 transition-colors p-1"
+                  >
+                    <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  </button>
                 </div>
 
-                <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                  {doc.category}
-                </span>
+                <div className="mt-3">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 uppercase tracking-wider">
+                    {doc.category}
+                  </span>
+                </div>
 
-                <h4 className="text-sm font-bold text-white mt-2 group-hover:text-teal-300 transition-colors line-clamp-1">
-                  {doc.file_name}
-                </h4>
-
-                <p className="text-xs text-slate-400 mt-1 line-clamp-2">
-                  {doc.ai_summary?.overview || 'Report processed with Azure AI Vision.'}
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-3 line-clamp-3 leading-relaxed">
+                  {doc.ai_summary?.overview || doc.ocr_data?.extracted_text || 'Report indexed in Medical Vault.'}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-600" />
-                  {new Date(doc.uploaded_at).toLocaleDateString()}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-semibold text-teal-600 dark:text-teal-400 flex items-center gap-1 group-hover:underline">
+                  <Eye className="w-3.5 h-3.5" /> Inspect Summary
                 </span>
 
-                <span className="text-[11px] font-semibold text-teal-400 group-hover:underline flex items-center gap-1">
-                  View Breakdown →
-                </span>
+                <button
+                  onClick={(e) => handleDelete(doc, e)}
+                  className="text-slate-400 hover:text-rose-500 p-1 transition-colors"
+                  title="Delete Document"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/50 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="p-4">Report Name</th>
-                <th className="p-4">Category</th>
-                <th className="p-4">Uploaded</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs text-slate-300">
-              {filteredDocs.map((doc) => (
-                <tr
-                  key={doc.id}
-                  onClick={() => onSelectDocument(doc)}
-                  className="hover:bg-slate-800/40 cursor-pointer transition-colors"
-                >
-                  <td className="p-4 font-semibold text-white flex items-center gap-3">
-                    <FileText className="w-4 h-4 text-teal-400 shrink-0" />
-                    <span>{doc.file_name}</span>
-                  </td>
-                  <td className="p-4">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">
-                      {doc.category}
-                    </span>
-                  </td>
-                  <td className="p-4 text-slate-400">{new Date(doc.uploaded_at).toLocaleDateString()}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={(e) => handleToggleFavorite(doc, e)}
-                        className="p-1 rounded text-slate-500 hover:text-amber-400"
-                      >
-                        <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-amber-400 text-amber-400' : ''}`} />
-                      </button>
-                      <button
-                        onClick={(e) => handleDelete(doc, e)}
-                        className="p-1 rounded text-slate-500 hover:text-rose-400"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="clean-card rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+            {filteredDocs.map((doc) => (
+              <div
+                key={doc.id}
+                onClick={() => onSelectDocument(doc)}
+                className="p-4 hover:bg-slate-100 dark:hover:bg-slate-900/60 cursor-pointer transition-colors flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <FileText className="w-5 h-5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-xs text-slate-900 dark:text-white truncate">{doc.file_name}</h4>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400">{new Date(doc.uploaded_at).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 uppercase">
+                    {doc.category}
+                  </span>
+
+                  <button
+                    onClick={(e) => handleToggleFavorite(doc, e)}
+                    className="text-slate-400 hover:text-amber-400 p-1"
+                  >
+                    <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-amber-400 text-amber-400' : ''}`} />
+                  </button>
+
+                  <button
+                    onClick={(e) => handleDelete(doc, e)}
+                    className="text-slate-400 hover:text-rose-500 p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
