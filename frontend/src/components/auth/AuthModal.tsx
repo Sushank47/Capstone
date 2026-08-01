@@ -178,19 +178,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </>
           )}
 
-          {mode === 'REGISTER' && (
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Account Role</label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                className="w-full px-3 py-2 bg-slate-950/60 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-teal-500"
-              >
-                <option value="PATIENT">Patient (Personal Document Storage)</option>
-                <option value="ADMIN">Administrator (Platform Operations)</option>
-              </select>
-            </div>
-          )}
+
 
           {mode === 'OTP' && (
             <div className="space-y-3">
