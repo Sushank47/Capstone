@@ -14,12 +14,38 @@ import { MedicalAIChat } from './components/chat/MedicalAIChat';
 import { ConsentManager } from './components/security/ConsentManager';
 import type { Document, AccessRequest } from './types';
 import { api } from './services/api';
-import { Activity, Info, LogIn, MessageSquare } from 'lucide-react';
+import { Activity, Info, LogIn } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState('home'); // Default view is informative Home page!
+
+  // Browser History Navigation State
+  const [activeTab, setActiveTabState] = useState(() => {
+    return window.location.hash.replace('#', '') || 'home';
+  });
+
+  const setActiveTab = (tab: string, pushHistory = true) => {
+    setActiveTabState(tab);
+    if (pushHistory) {
+      window.history.pushState({ tab }, '', `#${tab}`);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const targetTab = e.state?.tab || window.location.hash.replace('#', '') || 'home';
+      setActiveTabState(targetTab);
+    };
+
+    if (!window.history.state) {
+      const initialTab = window.location.hash.replace('#', '') || 'home';
+      window.history.replaceState({ tab: initialTab }, '', `#${initialTab}`);
+    }
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
@@ -78,7 +104,7 @@ const AppContent: React.FC = () => {
       {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => setActiveTab(tab)}
         openUploadModal={() => setIsUploadModalOpen(true)}
         openAuthModal={() => setIsAuthModalOpen(true)}
         pendingRequestsCount={pendingRequestsCount}
@@ -108,10 +134,20 @@ const AppContent: React.FC = () => {
 
         {/* Tab Views */}
         {activeTab === 'home' && (
-          <HomePageShowcase
-            onTryGuestChat={() => setActiveTab('chat')}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-          />
+          user ? (
+            <PatientDashboard
+              documents={documents}
+              requests={requests}
+              onSelectDocument={(doc) => setSelectedDocument(doc)}
+              openUploadModal={() => setIsUploadModalOpen(true)}
+              setActiveTab={(tab) => setActiveTab(tab)}
+            />
+          ) : (
+            <HomePageShowcase
+              onTryGuestChat={() => setActiveTab('chat')}
+              onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            />
+          )
         )}
 
         {activeTab === 'chat' && (

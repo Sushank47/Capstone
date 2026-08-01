@@ -1,4 +1,4 @@
-// High quality Female Voice Text-To-Speech (TTS) Engine Utility
+// High quality Sweet Girl Voice Text-To-Speech (TTS) Engine Utility
 
 export const speakFemaleVoice = (text: string, onEnd?: () => void): (() => void) => {
   if (!('speechSynthesis' in window)) {
@@ -20,32 +20,32 @@ export const speakFemaleVoice = (text: string, onEnd?: () => void): (() => void)
     .trim();
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.pitch = 1.05; // Slightly warmer female pitch
-  utterance.rate = 0.95;  // Clear, natural medical speech rate
+  utterance.pitch = 1.15; // Sweet, warm female pitch
+  utterance.rate = 0.92;  // Gentle, articulate medical speech rate
 
   const setFemaleVoice = () => {
     const voices = window.speechSynthesis.getVoices();
     
-    // Priority order for natural female voices across OS and browsers
-    const femaleVoice = voices.find((v) => {
+    // Priority list for sweet, natural female voices across Mac, Windows, Chrome, Safari
+    const sweetVoice = voices.find((v) => {
       const name = v.name.toLowerCase();
       const lang = v.lang.toLowerCase();
       return (
         lang.startsWith('en') &&
         (name.includes('jenny') ||
          name.includes('aria') ||
-         name.includes('zira') ||
          name.includes('samantha') ||
+         name.includes('zira') ||
          name.includes('victoria') ||
          name.includes('karen') ||
          name.includes('female') ||
          name.includes('google us english') ||
-         name.includes('natural'))
+         name.includes('google uk english female'))
       );
     }) || voices.find((v) => v.lang.startsWith('en'));
 
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    if (sweetVoice) {
+      utterance.voice = sweetVoice;
     }
   };
 

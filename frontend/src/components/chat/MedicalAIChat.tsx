@@ -15,7 +15,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true); // Default ON
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -120,7 +120,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
 
       setMessages((prev) => [...prev, botMsg]);
 
-      // Automatically speak with female voice if Voice mode is enabled
+      // Automatically speak with voice if Voice mode is enabled
       if (voiceEnabled) {
         setSpeakingMsgId(botMsgId);
         speakFemaleVoice(botMsgText, () => {
@@ -164,6 +164,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
           </div>
         </div>
 
+        {/* Voice Toggle Button - Defaults to ON, removed word 'Female' */}
         <button
           onClick={() => {
             const nextVoice = !voiceEnabled;
@@ -177,7 +178,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
           }`}
         >
           {voiceEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          <span>Female Voice {voiceEnabled ? 'On' : 'Off'}</span>
+          <span>Voice {voiceEnabled ? 'On' : 'Off'}</span>
         </button>
       </div>
 
@@ -206,7 +207,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
                   {msg.text}
                 </div>
 
-                {/* Speaker Icon Button for Female Voice Playback */}
+                {/* Speaker Icon Button for Voice Playback */}
                 {msg.sender === 'assistant' && (
                   <button
                     onClick={() => handleSpeakMessage(msg.id, msg.text)}
@@ -215,10 +216,10 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
                         ? 'bg-teal-500 text-slate-950 border-teal-400 animate-pulse'
                         : 'dark:bg-slate-950 dark:text-slate-400 dark:border-slate-800 dark:hover:text-teal-400 bg-slate-100 text-slate-600 border-slate-200 hover:text-teal-600'
                     }`}
-                    title="Listen to Female Voice Audio"
+                    title="Listen Voice"
                   >
                     <Volume2 className="w-3 h-3" />
-                    <span>{speakingMsgId === msg.id ? 'Speaking Female Voice...' : 'Listen Voice'}</span>
+                    <span>{speakingMsgId === msg.id ? 'Speaking...' : 'Listen Voice'}</span>
                   </button>
                 )}
               </div>
