@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import type { AccessRequest, AuditLog, UserRole } from '../../types';
+import type { AccessRequest, AuditLog } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { ShieldCheck, ShieldAlert, Lock, CheckCircle2, XCircle, Clock, AlertTriangle, Key, Eye } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2, XCircle, Clock, AlertTriangle, Key, Eye } from 'lucide-react';
+import { MedicalDisclaimer } from '../common/MedicalDisclaimer';
 
 export const ConsentManager: React.FC = () => {
   const { user } = useAuth();
@@ -42,10 +43,10 @@ export const ConsentManager: React.FC = () => {
     <div className="space-y-8">
       
       {/* Zero-Trust Architecture Notice Banner */}
-      <div className="glass-panel p-6 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-slate-900 via-teal-950/20 to-slate-900">
+      <div className="clean-card p-6 rounded-2xl border border-teal-500/30 bg-gradient-to-r dark:from-slate-900 dark:via-teal-950/20 dark:to-slate-900 from-teal-900 via-slate-900 to-teal-950 text-white">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center shrink-0 shadow-lg shadow-teal-500/20">
-            <Lock className="w-6 h-6 text-slate-950" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center shrink-0 shadow-lg shadow-teal-500/20 text-slate-950">
+            <Lock className="w-6 h-6" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
@@ -54,7 +55,7 @@ export const ConsentManager: React.FC = () => {
                 ACTIVE
               </span>
             </h3>
-            <p className="text-xs text-slate-300 leading-relaxed mt-1">
+            <p className="text-xs text-slate-200 leading-relaxed mt-1">
               Your medical documents are strictly isolated in your encrypted partition. Administrators, doctors, or third parties 
               <strong> cannot access, view, download, or index your medical files</strong> without your explicit, time-bounded approval. 
               Every access request requires a mandatory reason, and all access events are written to an immutable audit trail.
@@ -63,144 +64,109 @@ export const ConsentManager: React.FC = () => {
         </div>
       </div>
 
-      {/* Access Requests Manager */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-teal-400" />
-            <span>Administrative Access Requests ({requests.length})</span>
-          </h4>
-          <span className="text-xs text-slate-400">Patient Consent Control Center</span>
-        </div>
+      {/* Access Requests Table / List */}
+      <div className="clean-card p-6 rounded-2xl border dark:border-slate-800 border-slate-200 space-y-4">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-teal-400" /> Administrative Access Requests
+        </h3>
 
         {requests.length === 0 ? (
-          <div className="p-8 text-center glass-panel rounded-2xl border border-slate-800">
-            <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
-            <p className="text-xs font-semibold text-white">No Active Access Requests</p>
-            <p className="text-[11px] text-slate-400 mt-1">No platform administrator has requested permission to view your documents.</p>
-          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 py-4">No access requests found.</p>
         ) : (
           <div className="space-y-3">
             {requests.map((req) => (
               <div
                 key={req.id}
-                className="p-5 rounded-2xl glass-card border border-slate-700/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                className="p-4 rounded-xl dark:bg-slate-950/70 dark:border-slate-800 bg-slate-50 border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
               >
-                <div>
+                <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-white">{req.admin_name}</span>
-                    <span className="text-[10px] text-slate-400">({req.admin_email})</span>
+                    <span className="font-bold text-xs text-slate-900 dark:text-white">{req.requester_name}</span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                      {req.requester_role}
+                    </span>
                     <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
                       req.status === 'APPROVED'
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : req.status === 'PENDING'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                        : 'bg-slate-800 text-slate-400'
+                        ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-300'
+                        : req.status === 'REJECTED' || req.status === 'REVOKED'
+                        ? 'bg-rose-500/20 text-rose-800 dark:text-rose-300'
+                        : 'bg-amber-500/20 text-amber-800 dark:text-amber-300'
                     }`}>
                       {req.status}
                     </span>
                   </div>
-
-                  <p className="text-xs text-slate-200 mt-2">
-                    <strong className="text-teal-400">Stated Reason:</strong> {req.reason}
-                  </p>
-
-                  <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-3">
-                    <span>Requested: {new Date(req.created_at).toLocaleString()}</span>
-                    {req.expires_at && (
-                      <span className="text-amber-400 flex items-center gap-1 font-mono">
-                        <Clock className="w-3 h-3" /> Expires: {new Date(req.expires_at).toLocaleString()}
-                      </span>
-                    )}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">Reason: "{req.reason}"</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                    Requested on {new Date(req.created_at).toLocaleString()}
                   </p>
                 </div>
 
-                {/* Patient Action Buttons */}
-                {user?.role === 'PATIENT' && (
-                  <div className="flex items-center gap-2 shrink-0">
-                    {req.status === 'PENDING' && (
-                      <>
-                        <button
-                          onClick={() => handleAction(req.id, 'APPROVE')}
-                          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-colors"
-                        >
-                          Approve (24h Access)
-                        </button>
-                        <button
-                          onClick={() => handleAction(req.id, 'REJECT')}
-                          className="px-3.5 py-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs border border-rose-500/40 transition-colors"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-
-                    {req.status === 'APPROVED' && (
+                <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                  {req.status === 'PENDING' && (
+                    <>
                       <button
-                        onClick={() => handleAction(req.id, 'REVOKE')}
-                        className="px-3.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs shadow-md transition-colors"
+                        onClick={() => handleAction(req.id, 'APPROVE')}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm"
                       >
-                        Revoke Access Immediately
+                        Grant Access
                       </button>
-                    )}
-                  </div>
-                )}
+                      <button
+                        onClick={() => handleAction(req.id, 'REJECT')}
+                        className="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 text-white text-xs font-bold shadow-sm"
+                      >
+                        Deny
+                      </button>
+                    </>
+                  )}
+                  {req.status === 'APPROVED' && (
+                    <button
+                      onClick={() => handleAction(req.id, 'REVOKE')}
+                      className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-sm"
+                    >
+                      Revoke Access Now
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Immutable Security Audit Trail */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Eye className="w-4 h-4 text-cyan-400" />
-            <span>Immutable Security Audit Log Trail ({auditLogs.length})</span>
-          </h4>
-          <span className="text-xs text-slate-400">Cryptographically Recorded Activity</span>
-        </div>
+      {/* Immutable Audit Log History */}
+      <div className="clean-card p-6 rounded-2xl border dark:border-slate-800 border-slate-200 space-y-4">
+        <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <Clock className="w-5 h-5 text-cyan-600 dark:text-cyan-400" /> Immutable Security Audit Logs
+        </h3>
 
-        <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800 bg-slate-900/60 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <th className="p-4">Action</th>
-                <th className="p-4">Performed By</th>
-                <th className="p-4">Reason / Event Details</th>
-                <th className="p-4">IP Address</th>
-                <th className="p-4 text-right">Timestamp</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs text-slate-300">
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="p-4 font-mono">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      log.action.includes('UNAUTHORIZED') || log.action.includes('REVOKED')
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                        : log.action.includes('APPROVED') || log.action.includes('UPLOAD')
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
-                    }`}>
-                      {log.action}
-                    </span>
-                  </td>
-                  <td className="p-4 font-semibold text-white">
-                    {log.performed_by_name} <span className="text-[10px] text-slate-400">({log.performed_by_role})</span>
-                  </td>
-                  <td className="p-4 text-slate-300 max-w-xs truncate">
-                    {log.reason || log.document_name || 'Standard audit event'}
-                  </td>
-                  <td className="p-4 text-slate-400 font-mono text-[11px]">{log.ip_address}</td>
-                  <td className="p-4 text-right text-slate-400 font-mono text-[11px]">
-                    {new Date(log.timestamp).toLocaleString()}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {auditLogs.length === 0 ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400 py-4">No audit logs recorded.</p>
+        ) : (
+          <div className="space-y-2">
+            {auditLogs.map((log) => (
+              <div
+                key={log.id}
+                className="p-3 rounded-xl dark:bg-slate-950/60 dark:border-slate-800 bg-slate-50 border border-slate-200 text-xs flex items-center justify-between gap-4"
+              >
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white">{log.actor_email}</span>
+                    <span className="text-slate-600 dark:text-slate-300 ml-2 font-medium">[{log.action_type}] - {log.details}</span>
+                  </div>
+                </div>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-medium">
+                  {new Date(log.timestamp).toLocaleTimeString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* MEDICAL DISCLAIMER PLACED AT THE BOTTOM */}
+      <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+        <MedicalDisclaimer />
       </div>
 
     </div>
