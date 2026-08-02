@@ -12,8 +12,7 @@ import {
   User as UserIcon,
   Sun,
   Moon,
-  Activity,
-  Server
+  Activity
 } from 'lucide-react';
 
 interface Props {
@@ -48,13 +47,7 @@ export const Navbar: React.FC<Props> = ({
     { id: 'security', label: 'Security & Consent', icon: ShieldCheck, badge: pendingRequestsCount },
   ];
 
-  const adminTabs = [
-    { id: 'home', label: 'Home Overview', icon: Home },
-    { id: 'admin', label: 'Platform Management', icon: Server },
-    { id: 'security', label: 'Security & Logs', icon: ShieldCheck },
-  ];
-
-  const currentTabs = !user ? guestTabs : user.role === 'ADMIN' ? adminTabs : patientTabs;
+  const currentTabs = !user ? guestTabs : patientTabs;
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b transition-colors duration-200">
@@ -119,15 +112,13 @@ export const Navbar: React.FC<Props> = ({
           {user ? (
             <div className="flex items-center gap-2">
               {/* Upload Report Button */}
-              {user.role === 'PATIENT' && (
-                <button
-                  onClick={openUploadModal}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all"
-                >
-                  <Upload className="w-4 h-4" />
-                  <span className="hidden sm:inline">Upload Report</span>
-                </button>
-              )}
+              <button
+                onClick={openUploadModal}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all"
+              >
+                <Upload className="w-4 h-4" />
+                <span className="hidden sm:inline">Upload Report</span>
+              </button>
 
               {/* User Avatar Menu */}
               <div className="relative">

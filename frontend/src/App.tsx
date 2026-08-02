@@ -5,7 +5,6 @@ import { Navbar } from './components/layout/Navbar';
 import { AuthModal } from './components/auth/AuthModal';
 import { HomePageShowcase } from './components/home/HomePageShowcase';
 import { PatientDashboard } from './components/dashboard/PatientDashboard';
-import { AdminDashboard } from './components/dashboard/AdminDashboard';
 import { DocumentList } from './components/documents/DocumentList';
 import { DocumentUploadModal } from './components/documents/DocumentUploadModal';
 import { DocumentDetailModal } from './components/documents/DocumentDetailModal';
@@ -198,7 +197,6 @@ const AppContent: React.FC = () => {
           <ConsentManager openAuthModal={() => setIsAuthModalOpen(true)} />
         )}
 
-        {activeTab === 'admin' && user?.role === 'ADMIN' && <AdminDashboard />}
 
       </main>
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../types';
-import { X, Lock, Mail, User as UserIcon, ShieldCheck, KeyRound, Sparkles, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, KeyRound, Sparkles, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -65,20 +65,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleDemoAdmin = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await register('Dr. System Admin', 'admin@mediexplain.ai', 'AdminPass123!', 'ADMIN').catch(() => {});
-      await login('admin@mediexplain.ai', 'AdminPass123!');
-      onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to login with Admin account.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md dark:bg-slate-900 bg-white rounded-2xl p-6 shadow-2xl border dark:border-slate-700/80 border-slate-200 transition-colors duration-200">
@@ -102,28 +88,19 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* 1-Click Evaluation Login Buttons */}
+        {/* 1-Click Evaluation Login Button */}
         {mode === 'LOGIN' && (
           <div className="mb-6 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
             <p className="text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> Evaluation One-Click Quick Sign In
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={handleDemoPatient}
-                className="py-2 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center truncate"
-              >
-                Patient Evaluation Login
-              </button>
-              <button
-                type="button"
-                onClick={handleDemoAdmin}
-                className="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 font-bold text-xs shadow-sm transition-all text-center truncate"
-              >
-                Admin Access
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleDemoPatient}
+              className="w-full py-2.5 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center"
+            >
+              Patient Evaluation Login
+            </button>
           </div>
         )}
 
