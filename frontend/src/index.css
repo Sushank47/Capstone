@@ -5,7 +5,7 @@
 :root {
   --bg-primary: #020617;
   --bg-secondary: #0f172a;
-  --bg-card: rgba(15, 23, 42, 0.9);
+  --bg-card: rgba(15, 23, 42, 0.95);
   --border-color: rgba(51, 65, 85, 0.6);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
@@ -15,7 +15,7 @@
   --chat-ai-bg: #1e293b;
 }
 
-.light {
+html.light, .light {
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-card: #ffffff;
@@ -23,7 +23,7 @@
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --nav-bg: rgba(255, 255, 255, 0.95);
-  --input-bg: #ffffff;
+  --input-bg: #f8fafc;
   --chat-user-bg: #0d9488;
   --chat-ai-bg: #f1f5f9;
 }
@@ -52,6 +52,12 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-color: var(--border-color);
+}
+
+.glass-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  @apply rounded-2xl transition-all duration-200 shadow-sm;
 }
 
 /* Custom Scrollbar */
