@@ -11,6 +11,10 @@ import {
   ShieldCheck,
   UserCheck,
   HelpCircle,
+  TrendingUp,
+  FileCheck,
+  HeartPulse,
+  FolderLock
 } from 'lucide-react';
 
 interface Props {
@@ -33,7 +37,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
           Transform Complex Medical Reports Into <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-cyan-500 to-emerald-500">Simple, Patient-Friendly Intelligence</span>
         </h1>
 
-        <p className="text-sm sm:text-base max-w-2xl mx-auto leading-relaxed dark:text-slate-300 text-slate-600">
+        <p className="text-sm sm:text-base max-w-2xl mx-auto leading-relaxed dark:text-slate-300 text-slate-600 font-medium">
           Upload blood tests, prescriptions, X-rays, and discharge summaries. Get instant plain-English breakdowns, grounded RAG Q&A, voice explanations, and side-by-side report progression with absolute privacy.
         </p>
 
@@ -57,9 +61,90 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
         </div>
       </section>
 
+      {/* WHY USE MEDIEXPLAIN AI & ADVANTAGES SECTION */}
+      <section className="clean-card p-6 sm:p-8 space-y-6">
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400">Simple Overview</span>
+          <h2 className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight">Why Use MediExplain AI?</h2>
+          <p className="text-xs dark:text-slate-300 text-slate-600 font-medium">
+            Medical lab reports are full of complex medical jargon (like Hemoglobin, WBC, HbA1c, SGPT, Lipid profiles). MediExplain AI translates these documents into simple English so you can understand your health instantly.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          {/* Card 1: Key Advantages */}
+          <div className="p-5 rounded-2xl dark:bg-slate-950/70 dark:border-slate-800 bg-slate-50 border border-slate-200 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center border border-teal-500/20">
+              <HeartPulse className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Key Advantages</h3>
+            <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-2 font-medium">
+              <li className="flex items-start gap-2">
+                <span className="text-teal-500 font-bold">✓</span>
+                <span><strong>Instant Understanding:</strong> Know what your blood test values mean without waiting for doctor appointments.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-teal-500 font-bold">✓</span>
+                <span><strong>Out-of-Range Highlights:</strong> Automatically flags abnormal test parameters with plain explanations.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-teal-500 font-bold">✓</span>
+                <span><strong>Natural Voice Audio:</strong> Listen to report summaries spoken in a smooth female Siri-style voice.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Card 2: What You Can Do */}
+          <div className="p-5 rounded-2xl dark:bg-slate-950/70 dark:border-slate-800 bg-slate-50 border border-slate-200 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center border border-cyan-500/20">
+              <FileCheck className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">How You Benefit</h3>
+            <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-2 font-medium">
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-500 font-bold">✓</span>
+                <span><strong>Doctor Visit Preparation:</strong> Receive smart, tailored questions to ask your physician.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-500 font-bold">✓</span>
+                <span><strong>Zero-Trust Privacy:</strong> Your data is isolated in your encrypted partition on Azure Cloud.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-cyan-500 font-bold">✓</span>
+                <span><strong>Zero Hallucination:</strong> Chatbot answers cite exact pages from your uploaded lab files.</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Card 3: What Unlocks After Login */}
+          <div className="p-5 rounded-2xl dark:bg-slate-950/70 dark:border-slate-800 bg-slate-50 border border-slate-200 space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <FolderLock className="w-5 h-5" />
+            </div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">What Unlocks After Login?</h3>
+            <ul className="text-xs text-slate-700 dark:text-slate-300 space-y-2 font-medium">
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500 font-bold">🔑</span>
+                <span><strong>Encrypted Medical Vault:</strong> Store and organize all your medical reports permanently.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500 font-bold">📈</span>
+                <span><strong>Side-by-Side Progression:</strong> Compare historical reports to track improvements over time.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-emerald-500 font-bold">🛡️</span>
+                <span><strong>Consent Manager:</strong> Control doctor access permissions with real-time security audit logs.</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </section>
+
       {/* GUEST VS ACCOUNT MODE COMPARISON CARD */}
       <section className="clean-card p-6 border dark:border-teal-500/30 border-teal-500/20 dark:bg-gradient-to-r dark:from-slate-900 dark:via-teal-950/30 dark:to-slate-900 bg-white shadow-sm">
-        <h3 className="text-base font-bold dark:text-white text-slate-900 mb-4 text-center">Flexible Access Modes</h3>
+        <h3 className="text-base font-bold dark:text-white text-slate-900 mb-4 text-center">Choose Your Access Mode</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           {/* Guest Mode */}
@@ -72,7 +157,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
                 NO LOGIN NEEDED
               </span>
             </div>
-            <ul className="text-xs dark:text-slate-300 text-slate-700 space-y-2">
+            <ul className="text-xs dark:text-slate-300 text-slate-700 space-y-2 font-medium">
               <li className="flex items-center gap-2">✓ Ask general medical & lab report questions instantly</li>
               <li className="flex items-center gap-2">✓ Powered by Azure OpenAI GPT-4 clinical guidance</li>
               <li className="flex items-center gap-2 dark:text-slate-400 text-slate-500">🔒 <strong>No chat history stored</strong> in database or memory</li>
@@ -96,7 +181,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
                 FULL FEATURES
               </span>
             </div>
-            <ul className="text-xs dark:text-slate-300 text-slate-700 space-y-2">
+            <ul className="text-xs dark:text-slate-300 text-slate-700 space-y-2 font-medium">
               <li className="flex items-center gap-2">✓ Private encrypted Medical Document Vault</li>
               <li className="flex items-center gap-2">✓ Persistent chat history linked to your account</li>
               <li className="flex items-center gap-2">✓ Side-by-side historical report comparison tool</li>
@@ -117,7 +202,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
       <section className="space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight">Enterprise Azure AI Engine</h2>
-          <p className="text-xs dark:text-slate-400 text-slate-600 max-w-xl mx-auto">
+          <p className="text-xs dark:text-slate-400 text-slate-600 max-w-xl mx-auto font-medium">
             MediExplain AI integrates six dedicated Azure Cloud AI services for clinical accuracy and privacy.
           </p>
         </div>
@@ -129,7 +214,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <Eye className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Azure AI Vision (OCR)</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Scans multi-page PDFs, radiology sheets, handwritten doctor notes, and lab tables with high precision.
             </p>
           </div>
@@ -139,7 +224,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <Stethoscope className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Azure AI Language (Health NLP)</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Categorizes clinical medical entities, dosages, lab parameters, reference ranges, and diagnostic status.
             </p>
           </div>
@@ -149,7 +234,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <Bot className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Azure OpenAI (GPT-4)</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Generates empathetic plain-English report overviews, out-of-range parameter guides, and doctor questions.
             </p>
           </div>
@@ -159,7 +244,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <Search className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Azure AI Search (Vector RAG)</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Indexes document chunks to ensure chatbot responses cite source document references with zero hallucination.
             </p>
           </div>
@@ -169,7 +254,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <Volume2 className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Azure AI Speech (TTS)</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Converts complex document breakdowns into natural neural voice output for easy listening.
             </p>
           </div>
@@ -179,7 +264,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               <ShieldCheck className="w-5 h-5" />
             </div>
             <h4 className="text-sm font-bold dark:text-white text-slate-900">Zero-Trust Patient Consent</h4>
-            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-xs dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Administrators cannot open or view patient files without explicit, time-limited patient approval.
             </p>
           </div>
@@ -197,7 +282,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               1
             </div>
             <h4 className="text-xs font-bold dark:text-white text-slate-900">Upload or Chat</h4>
-            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Upload report PDFs or scans into your private vault, or use Guest Chat instantly.
             </p>
           </div>
@@ -207,7 +292,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               2
             </div>
             <h4 className="text-xs font-bold dark:text-white text-slate-900">Automated Azure Processing</h4>
-            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Azure AI Vision OCR extracts text, NLP identifies terms, and GPT-4 builds summaries.
             </p>
           </div>
@@ -217,7 +302,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
               3
             </div>
             <h4 className="text-xs font-bold dark:text-white text-slate-900">Understand & Take Action</h4>
-            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed">
+            <p className="text-[11px] dark:text-slate-400 text-slate-600 leading-relaxed font-medium">
               Read simplified explanations, listen to voice summary audio, and get doctor questions.
             </p>
           </div>

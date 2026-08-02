@@ -35,6 +35,11 @@ export const Navbar: React.FC<Props> = ({
   const { theme, toggleTheme } = useTheme();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
+  const guestTabs = [
+    { id: 'home', label: 'Home Overview', icon: Home },
+    { id: 'chat', label: 'Try AI Chat', icon: MessageSquare },
+  ];
+
   const patientTabs = [
     { id: 'home', label: 'Home Overview', icon: Home },
     { id: 'chat', label: 'Try AI Chat', icon: MessageSquare },
@@ -49,7 +54,7 @@ export const Navbar: React.FC<Props> = ({
     { id: 'security', label: 'Security & Logs', icon: ShieldCheck },
   ];
 
-  const currentTabs = user?.role === 'ADMIN' ? adminTabs : patientTabs;
+  const currentTabs = !user ? guestTabs : user.role === 'ADMIN' ? adminTabs : patientTabs;
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b transition-colors duration-200">
