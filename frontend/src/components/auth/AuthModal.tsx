@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole } from '../../types';
-import { X, Lock, Mail, User as UserIcon, ShieldCheck, KeyRound, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, ShieldCheck, KeyRound, Sparkles, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -15,6 +15,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [role] = useState<UserRole>('PATIENT');
   const [otpCode, setOtpCode] = useState('123456');
 
@@ -39,17 +40,18 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
         setSuccessMsg('Account created in MongoDB Atlas! Enter confirmation code below to activate.');
         setMode('OTP');
       } else if (mode === 'OTP') {
-        await verifyOtp(email, otpCode || '123456');
-        onClose();
+        await verifyOtp(email, otpCode);
+        setSuccessMsg('Email verified & authenticated!');
+        setTimeout(() => onClose(), 600);
       }
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'An authentication error occurred.');
+      setError(err.response?.data?.detail || 'Authentication failed. Check credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDemoLogin = async () => {
+  const handleDemoPatient = async () => {
     setLoading(true);
     setError('');
     try {
@@ -57,52 +59,69 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
       await login('sarah.patient@example.com', 'PatientPass123!');
       onClose();
     } catch (err: any) {
-      setError('Evaluation login failed.');
+      setError(err.response?.data?.detail || 'Failed to login with Sarah Patient account.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoAdmin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await register('Dr. System Admin', 'admin@mediexplain.ai', 'AdminPass123!', 'ADMIN').catch(() => {});
+      await login('admin@mediexplain.ai', 'AdminPass123!');
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to login with Admin account.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md dark:bg-slate-900 bg-white rounded-2xl p-6 shadow-2xl border dark:border-slate-700/80 border-slate-200 transition-colors duration-200">
         
-        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800 text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
-        {/* Modal Header */}
-        <div className="text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-teal-500/25">
-            <Lock className="w-6 h-6 text-slate-950" />
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-500/20 text-slate-950">
+            <Lock className="w-5 h-5" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-            {mode === 'LOGIN' ? 'Sign In to MediExplain AI' : mode === 'REGISTER' ? 'Create Your Medical Account' : 'Verify Email Account'}
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-            {mode === 'OTP' ? 'Confirmation code sent • Enter below to activate' : 'MongoDB Atlas Encrypted Account Storage'}
-          </p>
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+              {mode === 'LOGIN' ? 'Sign In' : mode === 'REGISTER' ? 'Create Account' : 'Verify Email OTP'}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Azure Key Vault & MongoDB Atlas Encrypted</p>
+          </div>
         </div>
 
-        {/* Demo Quick Login for Evaluation */}
+        {/* 1-Click Evaluation Login Buttons */}
         {mode === 'LOGIN' && (
-          <div className="mb-4 p-3 rounded-xl dark:bg-teal-500/10 dark:border-teal-500/30 bg-teal-50 border border-teal-200">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                <span>Quick Evaluation Access</span>
-              </p>
+          <div className="mb-6 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
+            <p className="text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> Evaluation One-Click Quick Sign In
+            </p>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={handleDemoLogin}
-                disabled={loading}
-                className="px-3 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white dark:bg-teal-600/30 dark:hover:bg-teal-600/50 dark:text-teal-200 text-xs font-bold border border-teal-500/40 transition-colors shadow-sm"
+                onClick={handleDemoPatient}
+                className="py-2 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center truncate"
               >
                 Patient Evaluation Login
+              </button>
+              <button
+                type="button"
+                onClick={handleDemoAdmin}
+                className="py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 font-bold text-xs shadow-sm transition-all text-center truncate"
+              >
+                Admin Access
               </button>
             </div>
           </div>
@@ -115,15 +134,13 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
         )}
 
         {successMsg && (
-          <div className="mb-4 p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <div className="mb-4 p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 font-medium">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <span>{successMsg}</span>
           </div>
         )}
 
-        {/* Auth Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-          
+        <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'REGISTER' && (
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
@@ -132,17 +149,16 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 <input
                   type="text"
                   required
-                  autoComplete="off"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Jane Doe"
+                  placeholder="Sarah Patient"
                   className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                 />
               </div>
             </div>
           )}
 
-          {mode !== 'OTP' && (
+          {(mode === 'LOGIN' || mode === 'REGISTER') && (
             <>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
@@ -162,17 +178,25 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                <div className="relative">
-                  <KeyRound className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
+                <div className="relative flex items-center">
+                  <KeyRound className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 pointer-events-none" />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                    className="w-full pl-9 pr-10 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none p-1"
+                    title={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
             </>
@@ -184,60 +208,53 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <input
                 type="text"
                 required
-                maxLength={6}
-                autoComplete="off"
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 placeholder="123456"
-                className="w-full px-4 py-2.5 text-center text-xl tracking-widest font-mono bg-slate-50 border border-teal-500 text-teal-800 dark:bg-slate-950/80 dark:border-teal-500/50 dark:text-teal-300 rounded-xl focus:outline-none focus:border-teal-400"
+                className="w-full text-center tracking-widest text-lg font-mono py-2.5 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:border-teal-500"
               />
-              <div className="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 dark:bg-teal-500/10 dark:border-teal-500/30 dark:text-teal-300 text-xs text-center space-y-1">
-                <p className="font-bold">Confirmation Code: {otpCode || "123456"}</p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">Click below to activate your account in MongoDB Atlas.</p>
-              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
+                Demo environment code is pre-filled. Click verify to enter.
+              </p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2"
+            className="w-full py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
             ) : (
-              <>
-                <ShieldCheck className="w-4 h-4" />
-                <span>
-                  {mode === 'LOGIN'
-                    ? 'Sign In'
-                    : mode === 'REGISTER'
-                    ? 'Create Account'
-                    : 'Verify & Complete Activation'}
-                </span>
-              </>
+              <span>{mode === 'LOGIN' ? 'Sign In to Vault' : mode === 'REGISTER' ? 'Register Account' : 'Verify Security Code'}</span>
             )}
           </button>
         </form>
 
-        {/* Footer Toggle */}
-        <div className="mt-5 pt-3 border-t border-slate-200 dark:border-slate-800 text-center">
+        <div className="mt-6 pt-4 border-t dark:border-slate-800 border-slate-200 text-center text-xs">
           {mode === 'LOGIN' ? (
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
               Don't have an account?{' '}
               <button
-                onClick={() => { setMode('REGISTER'); setError(''); setSuccessMsg(''); }}
-                className="text-teal-600 dark:text-teal-400 font-semibold hover:underline"
+                onClick={() => {
+                  setMode('REGISTER');
+                  setError('');
+                }}
+                className="text-teal-600 dark:text-teal-400 font-bold hover:underline"
               >
-                Register Here
+                Register Now
               </button>
             </p>
           ) : (
-            <p className="text-xs text-slate-600 dark:text-slate-400">
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
               Already registered?{' '}
               <button
-                onClick={() => { setMode('LOGIN'); setError(''); setSuccessMsg(''); }}
-                className="text-teal-600 dark:text-teal-400 font-semibold hover:underline"
+                onClick={() => {
+                  setMode('LOGIN');
+                  setError('');
+                }}
+                className="text-teal-600 dark:text-teal-400 font-bold hover:underline"
               >
                 Sign In
               </button>

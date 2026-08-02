@@ -1,4 +1,4 @@
-// High quality Sweet Girl Voice Text-To-Speech (TTS) Engine Utility
+// High quality Smooth Siri-style Female Voice Text-To-Speech (TTS) Engine Utility
 
 export const speakFemaleVoice = (text: string, onEnd?: () => void): (() => void) => {
   if (!('speechSynthesis' in window)) {
@@ -10,7 +10,7 @@ export const speakFemaleVoice = (text: string, onEnd?: () => void): (() => void)
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
 
-  // Strip markdown formatting symbols for natural speech
+  // Strip markdown formatting symbols for smooth natural speech
   const cleanText = text
     .replace(/\*\*/g, '')
     .replace(/#/g, '')
@@ -20,32 +20,37 @@ export const speakFemaleVoice = (text: string, onEnd?: () => void): (() => void)
     .trim();
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.pitch = 1.15; // Sweet, warm female pitch
-  utterance.rate = 0.92;  // Gentle, articulate medical speech rate
+  utterance.pitch = 1.0;  // Smooth natural Siri pitch
+  utterance.rate = 0.95;  // Smooth, natural Siri cadence
 
   const setFemaleVoice = () => {
     const voices = window.speechSynthesis.getVoices();
     
-    // Priority list for sweet, natural female voices across Mac, Windows, Chrome, Safari
-    const sweetVoice = voices.find((v) => {
-      const name = v.name.toLowerCase();
-      const lang = v.lang.toLowerCase();
-      return (
-        lang.startsWith('en') &&
-        (name.includes('jenny') ||
-         name.includes('aria') ||
-         name.includes('samantha') ||
-         name.includes('zira') ||
-         name.includes('victoria') ||
-         name.includes('karen') ||
-         name.includes('female') ||
-         name.includes('google us english') ||
-         name.includes('google uk english female'))
-      );
-    }) || voices.find((v) => v.lang.startsWith('en'));
+    // Priority order for smooth Apple Siri female voices & natural browser voices
+    const siriVoice =
+      voices.find((v) => {
+        const name = v.name.toLowerCase();
+        const lang = v.lang.toLowerCase();
+        return lang.startsWith('en') && (name.includes('samantha') || name.includes('siri'));
+      }) ||
+      voices.find((v) => {
+        const name = v.name.toLowerCase();
+        const lang = v.lang.toLowerCase();
+        return (
+          lang.startsWith('en') &&
+          (name.includes('victoria') ||
+           name.includes('jenny') ||
+           name.includes('aria') ||
+           name.includes('karen') ||
+           name.includes('zira') ||
+           name.includes('female') ||
+           name.includes('google us english'))
+        );
+      }) ||
+      voices.find((v) => v.lang.startsWith('en'));
 
-    if (sweetVoice) {
-      utterance.voice = sweetVoice;
+    if (siriVoice) {
+      utterance.voice = siriVoice;
     }
   };
 
