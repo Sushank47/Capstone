@@ -60,10 +60,8 @@ async def register_doctor(req: DoctorRegistration):
     await doctors_coll.insert_one(doctor_profile)
 
     await log_audit_event(
-        action=AuditAction.CONSENT_GRANTED,
-        performed_by_id=user_id,
-        performed_by_name=req.full_name,
-        performed_by_role="DOCTOR",
+        action=AuditAction.USER_REGISTER,
+        performed_by=user_doc,
         target_patient_id=user_id,
         details={"event": "Doctor Medical License Registered & Verified", "license": req.medical_license_number}
     )
@@ -132,6 +130,8 @@ async def list_verified_doctors(specialization: Optional[str] = None):
 
     return results
 
+from bson import ObjectId
+
 @router.post("/consultations", response_model=ConsultationResponse)
 async def create_consultation_request(
     req: ConsultationCreate,
@@ -139,11 +139,15 @@ async def create_consultation_request(
 ):
     doctors_coll = get_collection("doctors")
     doc = await doctors_coll.find_one({"_id": req.doctor_id})
+    if not doc and ObjectId.is_valid(req.doctor_id):
+        doc = await doctors_coll.find_one({"_id": ObjectId(req.doctor_id)})
     if not doc:
-        # Try matching user_id
         doc = await doctors_coll.find_one({"user_id": req.doctor_id})
-        if not doc:
-            raise HTTPException(status_code=404, detail="Doctor profile not found")
+    if not doc:
+        doc = await doctors_coll.find_one({"email": req.doctor_id})
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
 
     consultations_coll = get_collection("consultations")
     consult_id = str(uuid.uuid4())
@@ -179,10 +183,8 @@ async def create_consultation_request(
     await consultations_coll.insert_one(consult_doc)
 
     await log_audit_event(
-        action=AuditAction.CONSENT_GRANTED,
-        performed_by_id=str(current_user["_id"]),
-        performed_by_name=current_user.get("full_name", "Patient"),
-        performed_by_role="PATIENT",
+        action=AuditAction.CONSENT_REQUEST_SENT,
+        performed_by=current_user,
         target_patient_id=str(current_user["_id"]),
         details={"event": "Medical Consultation Booked", "doctor": doc.get("full_name")}
     )
@@ -301,10 +303,8 @@ async def doctor_request_report_access(
     await consent_coll.insert_one(consent_doc)
 
     await log_audit_event(
-        action=AuditAction.CONSENT_GRANTED,
-        performed_by_id=str(current_user["_id"]),
-        performed_by_name=current_user.get("full_name", "Doctor"),
-        performed_by_role="DOCTOR",
+        action=AuditAction.CONSENT_REQUEST_SENT,
+        performed_by=current_user,
         target_patient_id=req.patient_id,
         details={"event": "Doctor Requested Patient Record Access", "reason": req.reason}
     )

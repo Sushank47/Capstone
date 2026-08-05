@@ -161,7 +161,7 @@ const AppContent: React.FC = () => {
           <DoctorDirectory
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             onConsultationRequested={() => {
-              alert('Consultation request submitted! The doctor will be notified to accept your request.');
+              fetchAppData();
             }}
           />
         )}
