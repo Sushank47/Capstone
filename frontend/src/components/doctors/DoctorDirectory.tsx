@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import type { Doctor, Specialization } from '../../types';
+import type { Doctor } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Search, Stethoscope, Award, Star, Building2, CheckCircle2, MessageSquare, Calendar, ShieldCheck, X } from 'lucide-react';
+import { Search, Stethoscope, Award, Star, Building2, CheckCircle2, MessageSquare, ShieldCheck, X, LogIn } from 'lucide-react';
 import { MedicalDisclaimer } from '../common/MedicalDisclaimer';
 
 interface Props {
@@ -47,6 +47,14 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
       doc.hospital_affiliation.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
+
+  const handleRequestClick = (doctor: Doctor) => {
+    if (!user) {
+      onOpenAuthModal();
+      return;
+    }
+    setSelectedDoctor(doctor);
+  };
 
   const handleBookConsultation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,11 +204,15 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
               </div>
 
               <button
-                onClick={() => setSelectedDoctor(doctor)}
-                className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2"
+                onClick={() => handleRequestClick(doctor)}
+                className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 ${
+                  user
+                    ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
+                    : 'bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800'
+                }`}
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>Request Consultation</span>
+                {user ? <MessageSquare className="w-4 h-4" /> : <LogIn className="w-4 h-4 text-teal-400" />}
+                <span>{user ? 'Request Consultation' : 'Sign In to Consult Doctor'}</span>
               </button>
             </div>
           ))}
@@ -229,55 +241,79 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
               </div>
             </div>
 
-            {bookingSuccess && (
-              <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>{bookingSuccess}</span>
-              </div>
-            )}
-
-            {bookingError && (
-              <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-medium">
-                {bookingError}
-              </div>
-            )}
-
-            <form onSubmit={handleBookConsultation} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Describe Your Symptoms / Medical Inquiry
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  value={symptomsNote}
-                  onChange={(e) => setSymptomsNote(e.target.value)}
-                  placeholder="e.g. Seeking consultation regarding elevated fasting glucose, HbA1c 6.8%, and cholesterol test values from last month."
-                  className="w-full p-3 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl text-xs focus:outline-none focus:border-teal-500"
-                />
-              </div>
-
-              <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-[11px] text-teal-900 dark:text-teal-300 space-y-1 font-medium">
-                <p className="font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-teal-500" /> Zero-Trust Patient Privacy Guarantee
+            {!user ? (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs space-y-3 font-medium">
+                <p className="font-bold flex items-center gap-1.5 text-sm">
+                  <LogIn className="w-4 h-4 text-amber-500" /> Authentication Required
                 </p>
                 <p>
-                  {selectedDoctor.full_name} cannot view your saved lab reports until you approve their report permission request in your Security Center.
+                  You must sign in or register a patient account before submitting a medical consultation request to a verified doctor.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedDoctor(null);
+                    onOpenAuthModal();
+                  }}
+                  className="w-full py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>Sign In / Register Now</span>
+                </button>
               </div>
-
-              <button
-                type="submit"
-                disabled={isBooking}
-                className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
-              >
-                {isBooking ? (
-                  <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
-                ) : (
-                  <span>Submit Consultation Request</span>
+            ) : (
+              <>
+                {bookingSuccess && (
+                  <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span>{bookingSuccess}</span>
+                  </div>
                 )}
-              </button>
-            </form>
+
+                {bookingError && (
+                  <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-medium">
+                    {bookingError}
+                  </div>
+                )}
+
+                <form onSubmit={handleBookConsultation} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Describe Your Symptoms / Medical Inquiry
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={symptomsNote}
+                      onChange={(e) => setSymptomsNote(e.target.value)}
+                      placeholder="e.g. Seeking consultation regarding elevated fasting glucose, HbA1c 6.8%, and cholesterol test values from last month."
+                      className="w-full p-3 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl text-xs focus:outline-none focus:border-teal-500"
+                    />
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-[11px] text-teal-900 dark:text-teal-300 space-y-1 font-medium">
+                    <p className="font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-4 h-4 text-teal-500" /> Zero-Trust Patient Privacy Guarantee
+                    </p>
+                    <p>
+                      {selectedDoctor.full_name} cannot view your saved lab reports until you approve their report permission request in your Security Center.
+                    </p>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isBooking}
+                    className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+                  >
+                    {isBooking ? (
+                      <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+                    ) : (
+                      <span>Submit Consultation Request</span>
+                    )}
+                  </button>
+                </form>
+              </>
+            )}
 
           </div>
         </div>
