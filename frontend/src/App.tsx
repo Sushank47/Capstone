@@ -97,6 +97,15 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const [, setTicker] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTicker((t) => t + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     if (user?.role === 'DOCTOR' && activeTab === 'home') {
       setActiveTab('doctor_portal', false);
@@ -189,6 +198,15 @@ const AppContent: React.FC = () => {
         {user && consultations.length > 0 && (
           <div className="space-y-2">
             {consultations.map((consult) => {
+              const createdTime = new Date(consult.created_at).getTime();
+              const nowTime = new Date().getTime();
+              const elapsedSecs = Math.floor((nowTime - createdTime) / 1000);
+              const remainingSecs = Math.max(0, 180 - elapsedSecs);
+
+              const mins = Math.floor(remainingSecs / 60);
+              const secs = remainingSecs % 60;
+              const formattedTime = `${mins}:${secs.toString().padStart(2, '0')}`;
+
               if (user?.role === 'PATIENT') {
                 if (consult.status === 'ACCEPTED') {
                   return (
@@ -221,19 +239,47 @@ const AppContent: React.FC = () => {
                   return (
                     <div
                       key={consult.id}
-                      className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-300 flex items-center justify-between gap-3 shadow-sm animate-pulse"
+                      className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-300 flex items-center justify-between gap-3 shadow-sm"
                     >
                       <div className="flex items-center gap-2.5">
-                        <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+                        <Clock className="w-5 h-5 text-amber-500 shrink-0 animate-spin" />
                         <div>
                           <p className="text-xs font-bold text-slate-900 dark:text-white">
                             Consultation Request Sent to {consult.doctor_name}
                           </p>
                           <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium">
-                            Status: <strong className="uppercase">PENDING ACCEPTANCE</strong> • Awaiting doctor review.
+                            Status: <strong className="uppercase">PENDING ACCEPTANCE</strong> • Doctor has <strong>{formattedTime}</strong> to accept before 3-min expiration.
                           </p>
                         </div>
                       </div>
+                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                        ⏱ {formattedTime}
+                      </span>
+                    </div>
+                  );
+                } else if (consult.status === 'REJECTED' || consult.status === 'EXPIRED') {
+                  return (
+                    <div
+                      key={consult.id}
+                      className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-900 dark:text-rose-300 flex items-center justify-between gap-3 shadow-sm"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Info className="w-5 h-5 text-rose-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">
+                            Consultation Request {consult.status === 'REJECTED' ? 'Declined by Doctor' : 'Expired after 3 minutes'}
+                          </p>
+                          <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">
+                            You can choose another verified doctor or submit a new request in Find Doctors.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab('doctors')}
+                        className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition-all"
+                      >
+                        Request Again
+                      </button>
                     </div>
                   );
                 }
@@ -247,22 +293,41 @@ const AppContent: React.FC = () => {
                       <div className="flex items-center gap-2.5">
                         <Stethoscope className="w-5 h-5 text-teal-500 shrink-0" />
                         <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">
-                            New Patient Consultation Request: {consult.patient_name}
-                          </p>
-                          <p className="text-[11px] text-teal-700 dark:text-teal-300 font-medium">
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white">
+                              New Patient Consultation Request: {consult.patient_name}
+                            </p>
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                              ⏱ Expires in {formattedTime}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-teal-700 dark:text-teal-300 font-medium mt-0.5">
                             Inquiry: "{consult.symptoms_note}"
                           </p>
                         </div>
                       </div>
 
-                      <button
-                        onClick={() => setActiveTab('doctor_portal')}
-                        className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>Review & Accept Request</span>
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={async () => {
+                            await api.post(`/api/doctors/consultations/${consult.id}/status?new_status=ACCEPTED`);
+                            fetchAppData();
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1"
+                        >
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Accept Request</span>
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await api.post(`/api/doctors/consultations/${consult.id}/status?new_status=REJECTED`);
+                            fetchAppData();
+                          }}
+                          className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1"
+                        >
+                          <span>Reject</span>
+                        </button>
+                      </div>
                     </div>
                   );
                 }

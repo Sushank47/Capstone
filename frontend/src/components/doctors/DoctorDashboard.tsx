@@ -171,12 +171,21 @@ export const DoctorDashboard: React.FC<Props> = ({ onOpenConsultationRoom }) => 
 
                 <div className="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
                   {consult.status === 'PENDING' && (
-                    <button
-                      onClick={() => handleUpdateStatus(consult.id, 'ACCEPTED')}
-                      className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm transition-all"
-                    >
-                      Accept Consultation
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleUpdateStatus(consult.id, 'ACCEPTED')}
+                        className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm transition-all"
+                      >
+                        Accept Consultation
+                      </button>
+                      <button
+                        onClick={() => handleUpdateStatus(consult.id, 'REJECTED')}
+                        className="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Reject</span>
+                      </button>
+                    </div>
                   )}
 
                   {consult.status === 'ACCEPTED' && (

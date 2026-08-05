@@ -147,20 +147,32 @@ async def create_consultation_request(
 
     consultations_coll = get_collection("consultations")
 
-    # Enforce SINGLE ACTIVE CALL policy per doctor/patient pair
-    existing_active = await consultations_coll.find_one({
+    now_dt = datetime.utcnow()
+    # Check for existing active consultation and auto-expire if > 3 mins (180s)
+    existing_actives = await consultations_coll.find({
         "patient_id": str(current_user["_id"]),
         "doctor_id": str(doc["_id"]),
         "status": {"$in": [ConsultationStatus.PENDING.value, ConsultationStatus.ACCEPTED.value]}
-    })
-    if existing_active:
+    }).to_list(length=20)
+
+    for active in existing_actives:
+        if active.get("status") == ConsultationStatus.PENDING.value:
+            c_str = active.get("created_at")
+            if c_str:
+                try:
+                    c_dt = datetime.fromisoformat(c_str)
+                    if (now_dt - c_dt).total_seconds() > 180:
+                        await consultations_coll.update_one({"_id": active["_id"]}, {"$set": {"status": ConsultationStatus.EXPIRED.value}})
+                        continue
+                except Exception:
+                    pass
         raise HTTPException(
             status_code=400,
             detail=f"You already have an active consultation with {doc.get('full_name')}. Only a single active call session is allowed at a time."
         )
 
     consult_id = str(uuid.uuid4())
-    now_iso = datetime.utcnow().isoformat()
+    now_iso = now_dt.isoformat()
 
     consult_doc = {
         "_id": consult_id,
@@ -215,8 +227,22 @@ async def get_my_consultations(current_user: dict = Depends(get_current_user)):
         cursor = consultations_coll.find({"patient_id": user_id})
 
     docs = await cursor.to_list(length=100)
-    docs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    now_dt = datetime.utcnow()
 
+    # Auto-expire any PENDING requests older than 3 minutes (180 seconds)
+    for d in docs:
+        if d.get("status") == ConsultationStatus.PENDING.value:
+            c_str = d.get("created_at")
+            if c_str:
+                try:
+                    c_dt = datetime.fromisoformat(c_str)
+                    if (now_dt - c_dt).total_seconds() > 180:
+                        d["status"] = ConsultationStatus.EXPIRED.value
+                        await consultations_coll.update_one({"_id": d["_id"]}, {"$set": {"status": ConsultationStatus.EXPIRED.value}})
+                except Exception:
+                    pass
+
+    docs.sort(key=lambda x: x.get("created_at", ""), reverse=True)
     return [format_consultation(d) for d in docs]
 
 @router.post("/consultations/{consultation_id}/status", response_model=ConsultationResponse)

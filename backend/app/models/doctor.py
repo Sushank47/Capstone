@@ -49,6 +49,8 @@ class DoctorProfile(BaseModel):
 class ConsultationStatus(str, Enum):
     PENDING = "PENDING"
     ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
 
