@@ -13,8 +13,7 @@ import {
   Sun,
   Moon,
   Activity,
-  Stethoscope,
-  Award
+  Stethoscope
 } from 'lucide-react';
 
 interface Props {
@@ -39,7 +38,6 @@ export const Navbar: React.FC<Props> = ({
   const guestTabs = [
     { id: 'home', label: 'Home Overview', icon: Home },
     { id: 'chat', label: 'Try AI Chat', icon: MessageSquare },
-    { id: 'doctors', label: 'Find Doctors', icon: Stethoscope },
   ];
 
   const patientTabs = [
