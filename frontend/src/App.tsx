@@ -248,22 +248,32 @@ const AppContent: React.FC = () => {
                   return (
                     <div
                       key={consult.id}
-                      className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-300 flex items-center justify-between gap-3 shadow-sm"
+                      className="p-3.5 rounded-2xl bg-amber-500/15 border-2 border-amber-500/50 text-amber-900 dark:text-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
                     >
                       <div className="flex items-center gap-2.5">
                         <Clock className="w-5 h-5 text-amber-500 shrink-0 animate-spin" />
                         <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">
-                            Consultation Request Sent to {consult.doctor_name}
-                          </p>
-                          <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium">
-                            Status: <strong className="uppercase">PENDING ACCEPTANCE</strong> • Doctor has <strong>{formattedTime}</strong> to accept before 3-min expiration.
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white">
+                              Consultation Request Sent to {consult.doctor_name}
+                            </p>
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
+                              ⏱ {formattedTime}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium mt-0.5">
+                            Status: <strong className="uppercase">PENDING ACCEPTANCE</strong> • Click button on right to join call room anytime.
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/30">
-                        ⏱ {formattedTime}
-                      </span>
+
+                      <button
+                        onClick={() => setActiveConsultation(consult)}
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                      >
+                        <Video className="w-4 h-4" />
+                        <span>Join Telehealth Call Room</span>
+                      </button>
                     </div>
                   );
                 } else if (consult.status === 'REJECTED' || consult.status === 'EXPIRED') {

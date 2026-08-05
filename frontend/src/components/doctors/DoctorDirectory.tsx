@@ -207,25 +207,19 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
 
               {(() => {
                 const activeConsult = consultations.find(c => (c.doctor_id === doctor.id || c.doctor_name === doctor.full_name) && (c.status === 'ACCEPTED' || c.status === 'PENDING'));
-                if (activeConsult?.status === 'ACCEPTED') {
+                if (activeConsult) {
+                  const isAccepted = activeConsult.status === 'ACCEPTED';
                   return (
                     <button
                       onClick={() => onOpenConsultationRoom?.(activeConsult)}
-                      className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 animate-pulse"
+                      className={`w-full py-3 rounded-xl font-extrabold text-xs shadow-md transition-all flex items-center justify-center gap-2 ${
+                        isAccepted
+                          ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/30 animate-pulse'
+                          : 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 shadow-teal-500/30'
+                      }`}
                     >
-                      <Video className="w-4 h-4" />
-                      <span>🟢 Call Active: Join Telehealth Room</span>
-                    </button>
-                  );
-                }
-                if (activeConsult?.status === 'PENDING') {
-                  return (
-                    <button
-                      disabled
-                      className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-2 cursor-wait"
-                    >
-                      <Clock className="w-4 h-4 animate-spin" />
-                      <span>⏱ Request Sent (Awaiting Doctor)</span>
+                      <Video className="w-4 h-4 stroke-[2.5]" />
+                      <span>{isAccepted ? '🟢 Call Active: Click to Join Call' : '📞 Join Telehealth Call Room'}</span>
                     </button>
                   );
                 }
