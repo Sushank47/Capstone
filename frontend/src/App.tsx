@@ -376,6 +376,8 @@ const AppContent: React.FC = () => {
             onConsultationRequested={() => {
               fetchAppData();
             }}
+            consultations={consultations}
+            onOpenConsultationRoom={(c) => setActiveConsultation(c)}
           />
         )}
 

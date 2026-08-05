@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import type { Doctor } from '../../types';
+import type { Doctor, Consultation } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import { Search, Stethoscope, Award, Star, Building2, CheckCircle2, MessageSquare, ShieldCheck, X, LogIn } from 'lucide-react';
+import { Search, Stethoscope, Award, Star, Building2, CheckCircle2, MessageSquare, ShieldCheck, X, LogIn, Video, Clock } from 'lucide-react';
 import { MedicalDisclaimer } from '../common/MedicalDisclaimer';
 
 interface Props {
   onOpenAuthModal: () => void;
   onConsultationRequested?: () => void;
+  consultations?: Consultation[];
+  onOpenConsultationRoom?: (consultation: Consultation) => void;
 }
 
-export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultationRequested }) => {
+export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultationRequested, consultations = [], onOpenConsultationRoom }) => {
   const { user } = useAuth();
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -203,17 +205,44 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
                 </div>
               </div>
 
-              <button
-                onClick={() => handleRequestClick(doctor)}
-                className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 ${
-                  user
-                    ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
-                    : 'bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800'
-                }`}
-              >
-                {user ? <MessageSquare className="w-4 h-4" /> : <LogIn className="w-4 h-4 text-teal-400" />}
-                <span>{user ? 'Request Consultation' : 'Sign In to Consult Doctor'}</span>
-              </button>
+              {(() => {
+                const activeConsult = consultations.find(c => (c.doctor_id === doctor.id || c.doctor_name === doctor.full_name) && (c.status === 'ACCEPTED' || c.status === 'PENDING'));
+                if (activeConsult?.status === 'ACCEPTED') {
+                  return (
+                    <button
+                      onClick={() => onOpenConsultationRoom?.(activeConsult)}
+                      className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center justify-center gap-2 animate-pulse"
+                    >
+                      <Video className="w-4 h-4" />
+                      <span>🟢 Call Active: Join Telehealth Room</span>
+                    </button>
+                  );
+                }
+                if (activeConsult?.status === 'PENDING') {
+                  return (
+                    <button
+                      disabled
+                      className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-center gap-2 cursor-wait"
+                    >
+                      <Clock className="w-4 h-4 animate-spin" />
+                      <span>⏱ Request Sent (Awaiting Doctor)</span>
+                    </button>
+                  );
+                }
+                return (
+                  <button
+                    onClick={() => handleRequestClick(doctor)}
+                    className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 ${
+                      user
+                        ? 'bg-teal-500 hover:bg-teal-400 text-slate-950'
+                        : 'bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    {user ? <MessageSquare className="w-4 h-4" /> : <LogIn className="w-4 h-4 text-teal-400" />}
+                    <span>{user ? 'Request Consultation' : 'Sign In to Consult Doctor'}</span>
+                  </button>
+                );
+              })()}
             </div>
           ))}
         </div>
