@@ -142,15 +142,15 @@ export const Navbar: React.FC<Props> = ({
                   className="flex items-center gap-2 p-1.5 rounded-lg border transition-colors dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-slate-800 bg-slate-100 hover:bg-slate-200 border-slate-200"
                 >
                   <div className="w-7 h-7 rounded-md bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-xs border border-teal-500/30">
-                    {user.full_name.charAt(0).toUpperCase()}
+                    {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <span className="text-xs font-semibold dark:text-slate-200 text-slate-800 hidden sm:inline">{user.full_name.split(' ')[0]}</span>
+                  <span className="text-xs font-semibold dark:text-slate-200 text-slate-800 hidden sm:inline">{user?.full_name ? user.full_name.split(' ')[0] : 'User'}</span>
                 </button>
 
                 {showProfileMenu && (
                   <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl shadow-xl p-2 border z-50 dark:border-slate-800 border-slate-200">
                     <div className="px-3 py-2 border-b mb-1 dark:border-slate-800 border-slate-200">
-                      <p className="text-xs font-bold dark:text-white text-slate-900">{user.full_name}</p>
+                      <p className="text-xs font-bold dark:text-white text-slate-900">{user?.full_name || 'User'}</p>
                       <p className="text-[11px] dark:text-slate-400 text-slate-500 truncate">{user.email}</p>
                       {user.role === 'DOCTOR' && (
                         <span className="mt-1 text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-extrabold inline-block">

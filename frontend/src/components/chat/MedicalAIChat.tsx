@@ -34,14 +34,32 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
     if (user) {
       try {
         const res = await api.get<any[]>('/api/chat/history');
-        if (res.data && res.data.length > 0) {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           const restoredMsgs: ChatMessage[] = [];
           res.data.forEach((entry) => {
-            if (entry.user_message) restoredMsgs.push(entry.user_message);
-            if (entry.assistant_message) restoredMsgs.push(entry.assistant_message);
+            if (entry?.user_message) {
+              restoredMsgs.push({
+                id: entry.user_message.id || String(Math.random()),
+                sender: 'user',
+                text: typeof entry.user_message.text === 'string' ? entry.user_message.text : String(entry.user_message.text || ''),
+                timestamp: entry.user_message.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                citations: []
+              });
+            }
+            if (entry?.assistant_message) {
+              restoredMsgs.push({
+                id: entry.assistant_message.id || String(Math.random()),
+                sender: 'assistant',
+                text: typeof entry.assistant_message.text === 'string' ? entry.assistant_message.text : String(entry.assistant_message.text || ''),
+                timestamp: entry.assistant_message.timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                citations: Array.isArray(entry.assistant_message.citations) ? entry.assistant_message.citations : []
+              });
+            }
           });
-          setMessages(restoredMsgs);
-          return;
+          if (restoredMsgs.length > 0) {
+            setMessages(restoredMsgs);
+            return;
+          }
         }
       } catch (e) {
         console.error('Failed to restore chat history', e);
@@ -53,7 +71,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
         id: 'welcome',
         sender: 'assistant',
         text: user
-          ? `Hello ${user.full_name.split(' ')[0]}! Ask me any question about your medical reports or lab values. You can also clear chat history anytime.`
+          ? `Hello ${user?.full_name ? user.full_name.split(' ')[0] : 'Patient'}! Ask me any question about your medical reports or lab values. You can also clear chat history anytime.`
           : "Hello! Ask me any medical or lab report question (Guest Mode: History is not saved unless you log in).",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         citations: []
@@ -356,7 +374,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
                     {msg.text}
                   </div>
 
-                  {msg.citations && msg.citations.length > 0 && (
+                  {msg.citations && Array.isArray(msg.citations) && msg.citations.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-1 text-[10px]">
                       {msg.citations.map((c, idx) => (
                         <span
