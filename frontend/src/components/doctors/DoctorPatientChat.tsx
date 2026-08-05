@@ -249,7 +249,12 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
               )}
 
               <button
-                onClick={() => setActiveCallType(null)}
+                onClick={async () => {
+                  setActiveCallType(null);
+                  try {
+                    await api.post(`/api/doctors/consultations/${consultation.id}/status?new_status=COMPLETED`);
+                  } catch {}
+                }}
                 className="px-6 py-3.5 rounded-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-600/30 transition-all"
               >
                 <PhoneOff className="w-5 h-5" />

@@ -145,10 +145,20 @@ async def create_consultation_request(
     if not doc:
         doc = await doctors_coll.find_one({"email": req.doctor_id})
 
-    if not doc:
-        raise HTTPException(status_code=404, detail="Doctor profile not found")
-
     consultations_coll = get_collection("consultations")
+
+    # Enforce SINGLE ACTIVE CALL policy per doctor/patient pair
+    existing_active = await consultations_coll.find_one({
+        "patient_id": str(current_user["_id"]),
+        "doctor_id": str(doc["_id"]),
+        "status": {"$in": [ConsultationStatus.PENDING.value, ConsultationStatus.ACCEPTED.value]}
+    })
+    if existing_active:
+        raise HTTPException(
+            status_code=400,
+            detail=f"You already have an active consultation with {doc.get('full_name')}. Only a single active call session is allowed at a time."
+        )
+
     consult_id = str(uuid.uuid4())
     now_iso = datetime.utcnow().isoformat()
 
