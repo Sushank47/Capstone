@@ -11,10 +11,7 @@ import { DocumentDetailModal } from './components/documents/DocumentDetailModal'
 import { ReportComparison } from './components/comparison/ReportComparison';
 import { MedicalAIChat } from './components/chat/MedicalAIChat';
 import { ConsentManager } from './components/security/ConsentManager';
-import { DoctorDirectory } from './components/doctors/DoctorDirectory';
-import { DoctorDashboard } from './components/doctors/DoctorDashboard';
-import { DoctorPatientChat } from './components/doctors/DoctorPatientChat';
-import type { Document, AccessRequest, Consultation } from './types';
+import type { Document, AccessRequest } from './types';
 import { api } from './services/api';
 import { Activity, Info, LogIn } from 'lucide-react';
 
@@ -49,22 +46,12 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  useEffect(() => {
-    if (user?.role === 'DOCTOR' && activeTab === 'home') {
-      setActiveTab('doctor_portal', false);
-    } else if (!user && activeTab !== 'home' && activeTab !== 'chat') {
-      setActiveTab('home', false);
-      window.location.hash = 'home';
-    }
-  }, [user]);
-
   const [documents, setDocuments] = useState<Document[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
-  
+
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
-  const [activeConsultation, setActiveConsultation] = useState<Consultation | null>(null);
 
   const fetchAppData = async () => {
     if (!user) return;
@@ -76,9 +63,12 @@ const AppContent: React.FC = () => {
         ]);
         setDocuments(docsRes.data);
         setRequests(reqRes.data);
+      } else if (user.role === 'ADMIN') {
+        const reqRes = await api.get<AccessRequest[]>('/api/consent/requests');
+        setRequests(reqRes.data);
       }
     } catch {
-      console.error('Failed to load application documents or consent requests.');
+      console.error('Failed to load application data.');
     }
   };
 
@@ -86,39 +76,49 @@ const AppContent: React.FC = () => {
     fetchAppData();
   }, [user]);
 
+  useEffect(() => {
+    if (user?.role === 'ADMIN' && activeTab === 'dashboard') {
+      setActiveTab('admin');
+    }
+  }, [user]);
+
   const pendingRequestsCount = requests.filter((r) => r.status === 'PENDING').length;
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-teal-400 font-bold text-sm">
-        <Activity className="w-6 h-6 animate-spin mr-2" /> Loading Healthcare Intelligence Platform...
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center mx-auto animate-pulse">
+            <Activity className="w-5 h-5 text-slate-950" />
+          </div>
+          <p className="text-xs font-semibold text-teal-400">Loading MediExplain AI...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-200 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      
-      {/* Top Navbar Header */}
+
+      {/* Top Navbar */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => setActiveTab(tab)}
         openUploadModal={() => setIsUploadModalOpen(true)}
         openAuthModal={() => setIsAuthModalOpen(true)}
         pendingRequestsCount={pendingRequestsCount}
       />
 
-      {/* Main App Body Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Main App Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-        {/* Guest Access Indicator Header */}
-        {!user && (
-          <div className="mb-6 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/25 flex items-center justify-between gap-4 text-xs font-semibold text-teal-700 dark:text-teal-300">
+        {/* Guest Chat Info Notice when in Chat Tab */}
+        {!user && activeTab === 'chat' && (
+          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 text-xs text-amber-300">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 shrink-0 text-teal-500" />
+              <Info className="w-4 h-4 text-amber-400 shrink-0" />
               <span>
-                <strong>Guest Access Mode:</strong> You can test AI Chat Q&A and browse Verified Doctors right now without registering. 
-                Sign in to save reports, consult doctors, and enable Zero-Trust security logs.
+                <strong>Guest Chat Mode:</strong> You are using the AI Chatbot without signing in. No chat history or uploaded files are saved. <strong>Sign in</strong> to unlock persistent chat history and your private Medical Vault.
               </span>
             </div>
             <button
@@ -134,36 +134,19 @@ const AppContent: React.FC = () => {
         {/* Tab Views */}
         {activeTab === 'home' && (
           user ? (
-            user.role === 'DOCTOR' ? (
-              <DoctorDashboard onOpenConsultationRoom={(c) => setActiveConsultation(c)} />
-            ) : (
-              <PatientDashboard
-                documents={documents}
-                requests={requests}
-                onSelectDocument={(doc) => setSelectedDocument(doc)}
-                openUploadModal={() => setIsUploadModalOpen(true)}
-                setActiveTab={(tab) => setActiveTab(tab)}
-              />
-            )
+            <PatientDashboard
+              documents={documents}
+              requests={requests}
+              onSelectDocument={(doc) => setSelectedDocument(doc)}
+              openUploadModal={() => setIsUploadModalOpen(true)}
+              setActiveTab={(tab) => setActiveTab(tab)}
+            />
           ) : (
             <HomePageShowcase
               onTryGuestChat={() => setActiveTab('chat')}
               onOpenAuthModal={() => setIsAuthModalOpen(true)}
             />
           )
-        )}
-
-        {activeTab === 'doctor_portal' && (
-          <DoctorDashboard onOpenConsultationRoom={(c) => setActiveConsultation(c)} />
-        )}
-
-        {activeTab === 'doctors' && (
-          <DoctorDirectory
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
-            onConsultationRequested={() => {
-              fetchAppData();
-            }}
-          />
         )}
 
         {activeTab === 'chat' && (
@@ -214,6 +197,7 @@ const AppContent: React.FC = () => {
           <ConsentManager openAuthModal={() => setIsAuthModalOpen(true)} />
         )}
 
+
       </main>
 
       {/* Footer */}
@@ -221,7 +205,7 @@ const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-teal-400" />
-            <span className="font-bold text-slate-300">MediPro AI</span>
+            <span className="font-bold text-slate-300">MediExplain AI</span>
             <span>© 2026 Enterprise SaaS Platform</span>
           </div>
 
@@ -231,16 +215,13 @@ const AppContent: React.FC = () => {
         </div>
       </footer>
 
-      {/* Modals & Telehealth Consultation Room */}
+      {/* Modals */}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+
       <DocumentUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUploadSuccess={fetchAppData}
-      />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
       />
 
       <DocumentDetailModal
@@ -248,18 +229,11 @@ const AppContent: React.FC = () => {
         onClose={() => setSelectedDocument(null)}
       />
 
-      {activeConsultation && (
-        <DoctorPatientChat
-          consultation={activeConsultation}
-          onClose={() => setActiveConsultation(null)}
-        />
-      )}
-
     </div>
   );
 };
 
-export default function App() {
+export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -267,4 +241,7 @@ export default function App() {
       </AuthProvider>
     </ThemeProvider>
   );
+};
+
+export default App;
 }

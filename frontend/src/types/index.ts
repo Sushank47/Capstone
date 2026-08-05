@@ -11,62 +11,6 @@ export interface User {
   created_at: string;
 }
 
-export type Specialization =
-  | 'Cardiology'
-  | 'Endocrinology'
-  | 'General Medicine'
-  | 'Neurology'
-  | 'Pediatrics'
-  | 'Oncology'
-  | 'Dermatology'
-  | 'Pulmonology'
-  | 'Other';
-
-export interface Doctor {
-  id: string;
-  user_id: string;
-  full_name: string;
-  email: string;
-  medical_license_number: string;
-  specialization: Specialization;
-  experience_years: number;
-  hospital_affiliation: string;
-  bio?: string;
-  verification_status: 'PENDING' | 'VERIFIED' | 'REJECTED';
-  rating: number;
-  consultations_completed: number;
-  is_available: boolean;
-  created_at: string;
-}
-
-export type ConsultationStatus = 'PENDING' | 'ACCEPTED' | 'COMPLETED' | 'CANCELLED';
-
-export interface ConsultationMessage {
-  id: string;
-  consultation_id: string;
-  sender_id: string;
-  sender_name: string;
-  sender_role: string;
-  text: string;
-  timestamp: string;
-}
-
-export interface Consultation {
-  id: string;
-  patient_id: string;
-  patient_name: string;
-  patient_email: string;
-  doctor_id: string;
-  doctor_name: string;
-  doctor_specialization: string;
-  symptoms_note: string;
-  status: ConsultationStatus;
-  report_access_granted: boolean;
-  messages: ConsultationMessage[];
-  created_at: string;
-  accepted_at?: string;
-}
-
 export type DocumentCategory =
   | 'Blood Report'
   | 'Prescription'
