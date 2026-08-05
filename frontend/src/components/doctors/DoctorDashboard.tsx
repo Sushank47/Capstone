@@ -47,6 +47,10 @@ export const DoctorDashboard: React.FC<Props> = ({ onOpenConsultationRoom }) => 
 
   useEffect(() => {
     fetchDoctorData();
+    const interval = setInterval(() => {
+      fetchDoctorData();
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleUpdateStatus = async (consultationId: string, newStatus: 'ACCEPTED' | 'COMPLETED' | 'CANCELLED') => {

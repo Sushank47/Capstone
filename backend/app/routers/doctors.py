@@ -219,10 +219,21 @@ async def get_my_consultations(current_user: dict = Depends(get_current_user)):
     role = current_user.get("role", "PATIENT")
 
     if role == "DOCTOR":
+        doc_email = current_user.get("email", "")
+        doc_name = current_user.get("full_name", "")
         doctors_coll = get_collection("doctors")
-        doc_prof = await doctors_coll.find_one({"user_id": user_id})
+        doc_prof = await doctors_coll.find_one({"$or": [{"user_id": user_id}, {"email": doc_email}]})
         doc_id = str(doc_prof["_id"]) if doc_prof else user_id
-        cursor = consultations_coll.find({"$or": [{"doctor_id": doc_id}, {"doctor_user_id": user_id}]})
+
+        cursor = consultations_coll.find({
+            "$or": [
+                {"doctor_id": doc_id},
+                {"doctor_user_id": user_id},
+                {"doctor_email": doc_email},
+                {"doctor_name": doc_name},
+                {"status": ConsultationStatus.PENDING.value}
+            ]
+        })
     else:
         cursor = consultations_coll.find({"patient_id": user_id})
 
