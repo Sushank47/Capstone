@@ -26,7 +26,7 @@ export const MedicalDisclaimer: React.FC<Props> = ({ compact = false }) => {
           </span>
         </h4>
         <p className="text-xs text-amber-900 dark:text-amber-200/90 leading-relaxed font-medium">
-          MediExplain AI utilizes Azure AI models to simplify complex medical terminology and organize reports.
+          MediPro AI utilizes Azure AI models to simplify complex medical terminology and organize reports.
           <strong className="font-extrabold text-amber-950 dark:text-white"> It does not diagnose diseases, prescribe medications, or replace professional medical advice.</strong> Always consult a qualified physician or healthcare provider for official diagnosis, lab result evaluation, and treatment decisions.
         </p>
       </div>

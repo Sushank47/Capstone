@@ -3,7 +3,7 @@ from typing import List
 from app.config import settings
 from app.models.document import MedicalEntity
 
-logger = logging.getLogger("mediexplain.language")
+logger = logging.getLogger("medipro.language")
 
 class AzureLanguageService:
     def __init__(self):

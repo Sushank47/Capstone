@@ -2,7 +2,7 @@ import logging
 import base64
 from app.config import settings
 
-logger = logging.getLogger("mediexplain.speech")
+logger = logging.getLogger("medipro.speech")
 
 class AzureSpeechService:
     def __init__(self):

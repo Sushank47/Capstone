@@ -4,10 +4,10 @@ from typing import List, Dict, Any
 from app.config import settings
 from app.models.document import AISummaryData, ReportComparisonResponse, DocumentResponse
 
-logger = logging.getLogger("mediexplain.openai")
+logger = logging.getLogger("medipro.openai")
 
 MEDICAL_DISCLAIMER = (
-    "DISCLAIMER: MediExplain AI provides plain-language educational summaries only. "
+    "DISCLAIMER: MediPro AI provides plain-language educational summaries only. "
     "It does NOT diagnose medical conditions, prescribe treatment, or replace professional advice. "
     "Always consult your doctor or a qualified healthcare provider for diagnosis or medical decisions."
 )
@@ -31,7 +31,7 @@ class AzureOpenAIService:
                     api_version=settings.AZURE_OPENAI_API_VERSION
                 )
                 prompt = f"""
-                You are a empathetic medical AI assistant for MediExplain AI.
+                You are a empathetic medical AI assistant for MediPro AI.
                 Analyze the following extracted medical text from document '{file_name}' ({category}):
 
                 {ocr_text}

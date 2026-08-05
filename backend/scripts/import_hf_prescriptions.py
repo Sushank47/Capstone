@@ -24,7 +24,7 @@ CLETM_URL = "https://datasets-server.huggingface.co/rows?dataset=CL-ETM%2Fprescr
 
 async def import_all_prescriptions_and_datasets(target_patient_email: str = "sarah.patient@example.com"):
     print("=" * 70)
-    print("MediExplain AI - Prescription & Medical Dataset Batch Training Engine")
+    print("MediPro AI - Prescription & Medical Dataset Batch Training Engine")
     print("=" * 70)
 
     await init_db()

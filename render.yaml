@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mediexplain-backend
+    name: medipro-backend
     env: python
     region: oregon
     buildCommand: "pip install -r backend/requirements.txt"
@@ -9,7 +9,7 @@ services:
       - key: MONGODB_URL
         sync: false
       - key: DATABASE_NAME
-        value: mediexplain_db
+        value: medipro_db
       - key: SECRET_KEY
         generateValue: true
       - key: AZURE_VISION_ENDPOINT

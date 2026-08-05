@@ -22,7 +22,7 @@ DATASET_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 
 async def ingest_dataset_folder(target_patient_email: str = "sarah.patient@example.com"):
     print("=" * 60)
-    print("MediExplain AI - Dataset Folder Training & Ingestion Engine")
+    print("MediPro AI - Dataset Folder Training & Ingestion Engine")
     print("=" * 60)
     
     await init_db()
@@ -183,7 +183,7 @@ async def ingest_dataset_folder(target_patient_email: str = "sarah.patient@examp
             print(f"Error processing dataset file '{file_name}': {e}")
 
     print("\n" + "=" * 60)
-    print(f"🎉 Dataset Training Complete! Trained {ingested_count} dataset files into MediExplain AI.")
+    print(f"🎉 Dataset Training Complete! Trained {ingested_count} dataset files into MediPro AI.")
     print("=" * 60)
 
 if __name__ == "__main__":

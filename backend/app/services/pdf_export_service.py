@@ -5,7 +5,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 
-logger = logging.getLogger("mediexplain.pdf")
+logger = logging.getLogger("medipro.pdf")
 
 def generate_pdf_summary(doc_data: dict) -> bytes:
     buffer = io.BytesIO()
@@ -52,7 +52,7 @@ def generate_pdf_summary(doc_data: dict) -> bytes:
     story = []
 
     # Header
-    story.append(Paragraph("MediExplain AI - Patient Medical Summary", title_style))
+    story.append(Paragraph("MediPro AI - Patient Medical Summary", title_style))
     story.append(Paragraph(f"<b>Document:</b> {doc_data.get('file_name', 'Report')} | <b>Category:</b> {doc_data.get('category', 'Medical')}", body_style))
     story.append(Paragraph(f"<b>Generated On:</b> {doc_data.get('uploaded_at', '2026-07-31')}", body_style))
     story.append(Spacer(1, 10))

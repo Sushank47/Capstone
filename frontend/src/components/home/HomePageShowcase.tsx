@@ -61,13 +61,13 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
         </div>
       </section>
 
-      {/* WHY USE MEDIEXPLAIN AI & ADVANTAGES SECTION */}
+      {/* WHY USE MEDIPRO AI & ADVANTAGES SECTION */}
       <section className="clean-card p-6 sm:p-8 space-y-6">
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-teal-600 dark:text-teal-400">Simple Overview</span>
-          <h2 className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight">Why Use MediExplain AI?</h2>
+          <h2 className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight">Why Use MediPro AI?</h2>
           <p className="text-xs dark:text-slate-300 text-slate-600 font-medium">
-            Medical lab reports are full of complex medical jargon (like Hemoglobin, WBC, HbA1c, SGPT, Lipid profiles). MediExplain AI translates these documents into simple English so you can understand your health instantly.
+            Medical lab reports are full of complex medical jargon (like Hemoglobin, WBC, HbA1c, SGPT, Lipid profiles). MediPro AI translates these documents into simple English so you can understand your health instantly.
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold dark:text-white text-slate-900 tracking-tight">Enterprise Azure AI Engine</h2>
           <p className="text-xs dark:text-slate-400 text-slate-600 max-w-xl mx-auto font-medium">
-            MediExplain AI integrates six dedicated Azure Cloud AI services for clinical accuracy and privacy.
+            MediPro AI integrates six dedicated Azure Cloud AI services for clinical accuracy and privacy.
           </p>
         </div>
 
@@ -274,7 +274,7 @@ export const HomePageShowcase: React.FC<Props> = ({ onTryGuestChat, onOpenAuthMo
 
       {/* STEP BY STEP PROCESS */}
       <section className="clean-card p-6 space-y-6">
-        <h2 className="text-xl font-bold dark:text-white text-slate-900 text-center tracking-tight">How MediExplain AI Works in 3 Steps</h2>
+        <h2 className="text-xl font-bold dark:text-white text-slate-900 text-center tracking-tight">How MediPro AI Works in 3 Steps</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
 
           <div className="space-y-2">

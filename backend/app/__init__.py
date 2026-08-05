@@ -1,1 +1,1 @@
-# MediExplain AI Backend Package
+# MediPro AI Backend Package

@@ -1,4 +1,4 @@
-# MediExplain AI - Dataset Training & Ingestion Directory
+# MediPro AI - Dataset Training & Ingestion Directory
 
 Place all your raw medical datasets, report PDFs, clinical notes, laboratory test results, and training document files in this folder (`/dataset`).
 

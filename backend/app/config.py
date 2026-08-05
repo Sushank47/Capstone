@@ -4,18 +4,18 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # App Config
-    APP_NAME: str = "MediExplain AI"
+    APP_NAME: str = "MediPro AI"
     ENVIRONMENT: str = "production"
     DEBUG: bool = False
     PORT: int = 8000
-    SECRET_KEY: str = "mediexplain-super-secret-key-production-change-me-32bytes"
+    SECRET_KEY: str = "medipro-super-secret-key-production-change-me-32bytes"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # MongoDB
     MONGODB_URL: str = "mongodb://localhost:27017"
-    DATABASE_NAME: str = "mediexplain_db"
+    DATABASE_NAME: str = "medipro_db"
     
     # Azure Blob Storage
     AZURE_STORAGE_CONNECTION_STRING: Optional[str] = None

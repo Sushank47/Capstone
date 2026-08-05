@@ -11,7 +11,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('mediexplain_theme') as Theme) || 'dark';
+    return (localStorage.getItem('medipro_theme') as Theme) || 'dark';
   });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       root.classList.add('light');
       root.classList.remove('dark');
     }
-    localStorage.setItem('mediexplain_theme', theme);
+    localStorage.setItem('medipro_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

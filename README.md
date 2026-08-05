@@ -1,6 +1,6 @@
-# MediExplain AI - Production-Grade AI Healthcare SaaS Platform
+# MediPro AI - Production-Grade AI Healthcare SaaS Platform
 
-**MediExplain AI** is an enterprise-grade AI healthcare SaaS application engineered to transform complex medical documents (blood reports, prescriptions, X-rays, lab reports, discharge summaries) into simple, patient-friendly explanations.
+**MediPro AI** is an enterprise-grade AI healthcare SaaS application engineered to transform complex medical documents (blood reports, prescriptions, X-rays, lab reports, discharge summaries) into simple, patient-friendly explanations.
 
 Built with **React + TypeScript + Vite + Tailwind CSS + Lucide Icons** on the frontend, **FastAPI (Python)** on the backend, **MongoDB** for database persistence, and the complete **Azure Cloud AI Suite** (Vision, Language, OpenAI, Speech, Search RAG, Blob Storage).
 
@@ -95,7 +95,7 @@ docker-compose up --build
 The application includes built-in one-click demo login buttons in the Authentication Modal:
 
 1. **Patient Demo**: `sarah.patient@example.com` / `PatientPass123!`
-2. **Admin Demo**: `admin@mediexplain.ai` / `AdminSecret123!`
+2. **Admin Demo**: `admin@medipro.ai` / `AdminSecret123!`
 
 ---
 
@@ -103,4 +103,4 @@ The application includes built-in one-click demo login buttons in the Authentica
 
 Every AI summary, chat response, report comparison, and PDF export includes an explicit medical safety notice:
 
-> **DISCLAIMER**: MediExplain AI provides educational summaries only. It does not diagnose medical conditions, prescribe treatments, or replace professional healthcare advice. Always consult a qualified medical professional regarding your lab results and health.
+> **DISCLAIMER**: MediPro AI provides educational summaries only. It does not diagnose medical conditions, prescribe treatments, or replace professional healthcare advice. Always consult a qualified medical professional regarding your lab results and health.

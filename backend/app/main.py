@@ -7,14 +7,14 @@ from app.database import init_db
 from app.routers import auth, documents, ai, chat, consent, audit, admin, doctors
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("mediexplain")
+logger = logging.getLogger("medipro")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Initializing MediExplain AI Backend Engine...")
+    logger.info("Initializing MediPro AI Backend Engine...")
     await init_db()
     yield
-    logger.info("Shutting down MediExplain AI Backend...")
+    logger.info("Shutting down MediPro AI Backend...")
 
 app = FastAPI(
     title=settings.APP_NAME,

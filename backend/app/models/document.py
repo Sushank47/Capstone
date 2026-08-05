@@ -34,7 +34,7 @@ class AISummaryData(BaseModel):
     patient_actions: List[str]
     questions_for_doctor: List[str]
     medical_disclaimer: str = (
-        "DISCLAIMER: MediExplain AI provides educational summaries only. "
+        "DISCLAIMER: MediPro AI provides educational summaries only. "
         "It does not diagnose medical conditions, prescribe treatments, or replace professional healthcare advice. "
         "Always consult a qualified medical professional regarding your lab results and health."
     )

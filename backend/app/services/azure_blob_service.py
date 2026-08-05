@@ -4,7 +4,7 @@ from typing import Tuple
 from azure.storage.blob import BlobServiceClient
 from app.config import settings
 
-logger = logging.getLogger("mediexplain.blob")
+logger = logging.getLogger("medipro.blob")
 
 class BlobStorageService:
     def __init__(self):

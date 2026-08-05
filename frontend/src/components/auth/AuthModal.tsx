@@ -94,9 +94,9 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
     setLoading(true);
     setError('');
     try {
-      await login('dr.marcus@mediexplain.ai', 'DoctorPass123!').catch(async () => {
+      await login('dr.marcus@medipro.ai', 'DoctorPass123!').catch(async () => {
         await api.get('/api/doctors');
-        await login('dr.marcus@mediexplain.ai', 'DoctorPass123!');
+        await login('dr.marcus@medipro.ai', 'DoctorPass123!');
       });
       onClose();
     } catch (err: any) {
@@ -264,7 +264,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     autoComplete="off"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder={mode === 'DOCTOR_REGISTER' ? "doctor@mediexplain.ai" : "patient@example.com"}
+                    placeholder={mode === 'DOCTOR_REGISTER' ? "doctor@medipro.ai" : "patient@example.com"}
                     className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   />
                 </div>

@@ -3,7 +3,7 @@ from datetime import datetime
 from app.config import settings
 from app.models.document import OCRData
 
-logger = logging.getLogger("mediexplain.vision")
+logger = logging.getLogger("medipro.vision")
 
 class AzureVisionService:
     def __init__(self):

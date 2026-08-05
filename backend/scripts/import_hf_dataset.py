@@ -19,7 +19,7 @@ from app.models.document import DocumentCategory
 DATASET_API_URL = "https://datasets-server.huggingface.co/rows?dataset=RootCauseAnalytics%2Fsynthetic-australian-medical-documents-sample&config=default&split=train&offset=0&length=10"
 
 async def import_hf_medical_dataset(target_patient_email: str = "sarah.patient@example.com"):
-    print("Initializing MediExplain AI Dataset Importer...")
+    print("Initializing MediPro AI Dataset Importer...")
     await init_db()
 
     users_coll = get_collection("users")
@@ -126,7 +126,7 @@ async def import_hf_medical_dataset(target_patient_email: str = "sarah.patient@e
         except Exception as e:
             print(f"Error importing row {idx}: {e}")
 
-    print(f"\n🎉 Import Complete! Imported {imported_count} medical documents from Hugging Face dataset into MediExplain AI.")
+    print(f"\n🎉 Import Complete! Imported {imported_count} medical documents from Hugging Face dataset into MediPro AI.")
 
 if __name__ == "__main__":
     asyncio.run(import_hf_medical_dataset())

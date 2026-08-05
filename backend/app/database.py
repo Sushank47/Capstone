@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.config import settings
 
-logger = logging.getLogger("mediexplain.database")
+logger = logging.getLogger("medipro.database")
 
 # In-memory/file fallback database store if MongoDB connection fails
 class FallbackCollection:

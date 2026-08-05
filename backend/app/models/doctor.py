@@ -21,7 +21,7 @@ class Specialization(str, Enum):
 
 class DoctorRegistration(BaseModel):
     full_name: str = Field(..., min_length=2, example="Dr. Marcus Vance")
-    email: EmailStr = Field(..., example="dr.marcus@mediexplain.ai")
+    email: EmailStr = Field(..., example="dr.marcus@medipro.ai")
     password: str = Field(..., min_length=6, example="DoctorPass123!")
     medical_license_number: str = Field(..., min_length=4, example="MD-88492-CAR")
     specialization: Specialization = Specialization.CARDIOLOGY

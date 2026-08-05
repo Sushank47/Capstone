@@ -116,7 +116,7 @@ async def list_verified_doctors(specialization: Optional[str] = None):
             id=str(d["_id"]),
             user_id=d.get("user_id", str(d["_id"])),
             full_name=d.get("full_name", "Doctor"),
-            email=d.get("email", "doctor@mediexplain.ai"),
+            email=d.get("email", "doctor@medipro.ai"),
             medical_license_number=d.get("medical_license_number", "MD-VERIFIED"),
             specialization=parsed_spec,
             experience_years=d.get("experience_years", 10),
@@ -393,7 +393,7 @@ async def ensure_demo_doctor_seeded():
     now_iso = datetime.utcnow().isoformat()
 
     # Doctor 1: Dr. Marcus Vance (Cardiologist)
-    doc1_email = "dr.marcus@mediexplain.ai"
+    doc1_email = "dr.marcus@medipro.ai"
     u1_doc = await users_coll.find_one({"email": doc1_email})
     if not u1_doc:
         u1_id = str(uuid.uuid4())
@@ -431,7 +431,7 @@ async def ensure_demo_doctor_seeded():
     )
 
     # Doctor 2: Dr. Elena Rostova (Endocrinologist)
-    doc2_email = "dr.elena@mediexplain.ai"
+    doc2_email = "dr.elena@medipro.ai"
     u2_doc = await users_coll.find_one({"email": doc2_email})
     if not u2_doc:
         u2_id = str(uuid.uuid4())

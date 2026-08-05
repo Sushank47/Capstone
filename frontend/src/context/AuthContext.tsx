@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const refreshUser = async () => {
-    const token = localStorage.getItem('mediexplain_access_token');
+    const token = localStorage.getItem('medipro_access_token');
     if (!token) {
       setUser(null);
       setLoading(false);
@@ -30,8 +30,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await api.get<User>('/api/auth/me');
       setUser(res.data);
     } catch {
-      localStorage.removeItem('mediexplain_access_token');
-      localStorage.removeItem('mediexplain_refresh_token');
+      localStorage.removeItem('medipro_access_token');
+      localStorage.removeItem('medipro_refresh_token');
       setUser(null);
     } finally {
       setLoading(false);
@@ -44,8 +44,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, pass: string) => {
     const res = await api.post('/api/auth/login', { email, password: pass });
-    localStorage.setItem('mediexplain_access_token', res.data.access_token);
-    localStorage.setItem('mediexplain_refresh_token', res.data.refresh_token);
+    localStorage.setItem('medipro_access_token', res.data.access_token);
+    localStorage.setItem('medipro_refresh_token', res.data.refresh_token);
     setUser(res.data.user);
   };
 
@@ -55,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       full_name: fullName,
       google_id: googleId
     });
-    localStorage.setItem('mediexplain_access_token', res.data.access_token);
-    localStorage.setItem('mediexplain_refresh_token', res.data.refresh_token);
+    localStorage.setItem('medipro_access_token', res.data.access_token);
+    localStorage.setItem('medipro_refresh_token', res.data.refresh_token);
     setUser(res.data.user);
   };
 
@@ -67,8 +67,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password: pass,
       role
     });
-    localStorage.setItem('mediexplain_access_token', res.data.access_token);
-    localStorage.setItem('mediexplain_refresh_token', res.data.refresh_token);
+    localStorage.setItem('medipro_access_token', res.data.access_token);
+    localStorage.setItem('medipro_refresh_token', res.data.refresh_token);
     setUser(res.data.user);
   };
 
@@ -80,8 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem('mediexplain_access_token');
-    localStorage.removeItem('mediexplain_refresh_token');
+    localStorage.removeItem('medipro_access_token');
+    localStorage.removeItem('medipro_refresh_token');
     setUser(null);
   };
 
