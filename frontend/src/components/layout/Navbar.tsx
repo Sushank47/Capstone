@@ -70,7 +70,7 @@ export const Navbar: React.FC<Props> = ({
           </div>
           <div>
             <span className="font-extrabold text-base tracking-tight dark:text-white text-slate-900">
-              MediExplain AI
+              MediPro AI
             </span>
             {user?.role === 'DOCTOR' ? (
               <span className="hidden sm:inline-block ml-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
@@ -163,6 +163,9 @@ export const Navbar: React.FC<Props> = ({
                       onClick={() => {
                         setShowProfileMenu(false);
                         logout();
+                        setActiveTab('home');
+                        window.location.hash = 'home';
+                        window.location.reload();
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 font-semibold"
                     >

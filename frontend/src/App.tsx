@@ -52,6 +52,9 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (user?.role === 'DOCTOR' && activeTab === 'home') {
       setActiveTab('doctor_portal', false);
+    } else if (!user && activeTab !== 'home' && activeTab !== 'chat') {
+      setActiveTab('home', false);
+      window.location.hash = 'home';
     }
   }, [user]);
 
@@ -218,7 +221,7 @@ const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-teal-400" />
-            <span className="font-bold text-slate-300">MediExplain AI</span>
+            <span className="font-bold text-slate-300">MediPro AI</span>
             <span>© 2026 Enterprise SaaS Platform</span>
           </div>
 
