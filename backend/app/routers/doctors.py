@@ -22,7 +22,7 @@ async def register_doctor(req: DoctorRegistration):
     doctors_coll = get_collection("doctors")
 
     # Check if email exists
-    existing = await users_coll.find_one({"email": req.email})
+    existing = await users_coll.find_one({"email": req.email.lower()})
     if existing:
         raise HTTPException(status_code=400, detail="An account with this email already exists")
 
@@ -32,7 +32,7 @@ async def register_doctor(req: DoctorRegistration):
 
     user_doc = {
         "_id": user_id,
-        "email": req.email,
+        "email": req.email.lower(),
         "full_name": req.full_name,
         "password_hash": get_password_hash(req.password),
         "role": "DOCTOR",
@@ -45,7 +45,7 @@ async def register_doctor(req: DoctorRegistration):
         "_id": doc_id,
         "user_id": user_id,
         "full_name": req.full_name,
-        "email": req.email,
+        "email": req.email.lower(),
         "medical_license_number": req.medical_license_number,
         "specialization": req.specialization.value,
         "experience_years": req.experience_years,
@@ -72,7 +72,7 @@ async def register_doctor(req: DoctorRegistration):
         id=doc_id,
         user_id=user_id,
         full_name=req.full_name,
-        email=req.email,
+        email=req.email.lower(),
         medical_license_number=req.medical_license_number,
         specialization=req.specialization,
         experience_years=req.experience_years,
@@ -89,7 +89,7 @@ async def register_doctor(req: DoctorRegistration):
 async def list_verified_doctors(specialization: Optional[str] = None):
     doctors_coll = get_collection("doctors")
 
-    # Always ensure default evaluation doctor exists
+    # Always ensure default evaluation doctors exist
     await ensure_demo_doctor_seeded()
 
     query = {"verification_status": VerificationStatus.VERIFIED.value}
@@ -344,29 +344,29 @@ async def ensure_demo_doctor_seeded():
     doctors_coll = get_collection("doctors")
     users_coll = get_collection("users")
 
-    doc_email = "dr.marcus@mediexplain.ai"
-    existing_user = await users_coll.find_one({"email": doc_email})
-    if not existing_user:
-        user_id = str(uuid.uuid4())
-        doc_id = str(uuid.uuid4())
+    # Doctor 1: Dr. Marcus Vance (Cardiologist)
+    doc1_email = "dr.marcus@mediexplain.ai"
+    existing1 = await users_coll.find_one({"email": doc1_email})
+    if not existing1:
+        u1_id = str(uuid.uuid4())
+        d1_id = str(uuid.uuid4())
         now_iso = datetime.utcnow().isoformat()
 
-        user_doc = {
-            "_id": user_id,
-            "email": doc_email,
+        await users_coll.insert_one({
+            "_id": u1_id,
+            "email": doc1_email,
             "full_name": "Dr. Marcus Vance, MD",
             "password_hash": get_password_hash("DoctorPass123!"),
             "role": "DOCTOR",
             "is_verified": True,
             "created_at": now_iso
-        }
-        await users_coll.insert_one(user_doc)
+        })
 
-        doctor_profile = {
-            "_id": doc_id,
-            "user_id": user_id,
+        await doctors_coll.insert_one({
+            "_id": d1_id,
+            "user_id": u1_id,
             "full_name": "Dr. Marcus Vance, MD",
-            "email": doc_email,
+            "email": doc1_email,
             "medical_license_number": "MD-88492-CAR",
             "specialization": "Cardiology",
             "experience_years": 14,
@@ -377,5 +377,39 @@ async def ensure_demo_doctor_seeded():
             "consultations_completed": 184,
             "is_available": True,
             "created_at": now_iso
-        }
-        await doctors_coll.insert_one(doctor_profile)
+        })
+
+    # Doctor 2: Dr. Elena Rostova (Endocrinologist)
+    doc2_email = "dr.elena@mediexplain.ai"
+    existing2 = await users_coll.find_one({"email": doc2_email})
+    if not existing2:
+        u2_id = str(uuid.uuid4())
+        d2_id = str(uuid.uuid4())
+        now_iso = datetime.utcnow().isoformat()
+
+        await users_coll.insert_one({
+            "_id": u2_id,
+            "email": doc2_email,
+            "full_name": "Dr. Elena Rostova, MD",
+            "password_hash": get_password_hash("DoctorPass123!"),
+            "role": "DOCTOR",
+            "is_verified": True,
+            "created_at": now_iso
+        })
+
+        await doctors_coll.insert_one({
+            "_id": d2_id,
+            "user_id": u2_id,
+            "full_name": "Dr. Elena Rostova, MD",
+            "email": doc2_email,
+            "medical_license_number": "MD-99120-END",
+            "specialization": "Endocrinology",
+            "experience_years": 11,
+            "hospital_affiliation": "Johns Hopkins Diabetes & Endocrinology Center",
+            "bio": "Lead endocrinologist specializing in diabetes management, HbA1c glucose monitoring, thyroid disorders, and metabolic health.",
+            "verification_status": "VERIFIED",
+            "rating": 4.95,
+            "consultations_completed": 156,
+            "is_available": True,
+            "created_at": now_iso
+        })

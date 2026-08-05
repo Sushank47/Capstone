@@ -90,7 +90,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleDemoDoctor = async () => {
+  const handleDemoDoctor1 = async () => {
     setLoading(true);
     setError('');
     try {
@@ -100,7 +100,23 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
       });
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to login with Doctor evaluation account.');
+      setError(err.response?.data?.detail || 'Failed to login with Doctor 1 account.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoDoctor2 = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await login('dr.elena@mediexplain.ai', 'DoctorPass123!').catch(async () => {
+        await api.get('/api/doctors');
+        await login('dr.elena@mediexplain.ai', 'DoctorPass123!');
+      });
+      onClose();
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to login with Doctor 2 account.');
     } finally {
       setLoading(false);
     }
@@ -131,24 +147,34 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {/* 1-Click Evaluation Login Buttons */}
         {mode === 'LOGIN' && (
-          <div className="mb-6 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
+          <div className="mb-6 p-3.5 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2.5">
             <p className="text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> 1-Click Quick Evaluation Login
+              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> 1-Click Evaluation Login Options
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            
+            <button
+              type="button"
+              onClick={handleDemoPatient}
+              className="w-full py-2 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center"
+            >
+              Patient Login (Sarah Patient)
+            </button>
+
+            <div className="grid grid-cols-2 gap-2 pt-0.5">
               <button
                 type="button"
-                onClick={handleDemoPatient}
-                className="py-2.5 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center truncate"
+                onClick={handleDemoDoctor1}
+                className="py-2 px-2.5 rounded-lg bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800 font-bold text-[11px] shadow-sm transition-all text-center truncate"
               >
-                Patient Login
+                Doctor 1: Dr. Marcus (Cardiology)
               </button>
+
               <button
                 type="button"
-                onClick={handleDemoDoctor}
-                className="py-2.5 px-3 rounded-lg bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800 font-bold text-xs shadow-sm transition-all text-center truncate"
+                onClick={handleDemoDoctor2}
+                className="py-2 px-2.5 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 hover:bg-slate-800 font-bold text-[11px] shadow-sm transition-all text-center truncate"
               >
-                Doctor Portal Login
+                Doctor 2: Dr. Elena (Endo)
               </button>
             </div>
           </div>
