@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component, ReactNode } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
@@ -16,7 +16,55 @@ import { DoctorDashboard } from './components/doctors/DoctorDashboard';
 import { DoctorPatientChat } from './components/doctors/DoctorPatientChat';
 import type { Document, AccessRequest, Consultation } from './types';
 import { api } from './services/api';
-import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope } from 'lucide-react';
+import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope, RefreshCw } from 'lucide-react';
+
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public state: ErrorBoundaryState = { hasError: false };
+
+  public static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Uncaught React Error:", error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
+            <Activity className="w-6 h-6 animate-pulse" />
+          </div>
+          <h2 className="text-xl font-bold text-white">MediPro AI Application Reset</h2>
+          <p className="text-xs text-slate-400 max-w-md font-medium">
+            Session updated. Click the button below to reload your workspace cleanly.
+          </p>
+          <button
+            onClick={() => {
+              window.location.hash = 'home';
+              window.location.reload();
+            }}
+            className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Reload Overview</span>
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -70,7 +118,7 @@ const AppContent: React.FC = () => {
   const fetchAppData = async () => {
     if (!user) return;
     try {
-      if (user.role === 'PATIENT') {
+      if (user?.role === 'PATIENT') {
         const [docsRes, reqRes, consultRes] = await Promise.allSettled([
           api.get<Document[]>('/api/documents'),
           api.get<AccessRequest[]>('/api/consent/requests'),
@@ -79,7 +127,7 @@ const AppContent: React.FC = () => {
         if (docsRes.status === 'fulfilled') setDocuments(docsRes.value.data);
         if (reqRes.status === 'fulfilled') setRequests(reqRes.value.data);
         if (consultRes.status === 'fulfilled') setConsultations(consultRes.value.data);
-      } else if (user.role === 'DOCTOR') {
+      } else if (user?.role === 'DOCTOR') {
         const consultRes = await api.get<Consultation[]>('/api/doctors/consultations/my');
         setConsultations(consultRes.data);
       }
@@ -141,7 +189,7 @@ const AppContent: React.FC = () => {
         {user && consultations.length > 0 && (
           <div className="space-y-2">
             {consultations.map((consult) => {
-              if (user.role === 'PATIENT') {
+              if (user?.role === 'PATIENT') {
                 if (consult.status === 'ACCEPTED') {
                   return (
                     <div
@@ -189,7 +237,7 @@ const AppContent: React.FC = () => {
                     </div>
                   );
                 }
-              } else if (user.role === 'DOCTOR') {
+              } else if (user?.role === 'DOCTOR') {
                 if (consult.status === 'PENDING') {
                   return (
                     <div
@@ -227,7 +275,7 @@ const AppContent: React.FC = () => {
         {/* Tab Views */}
         {activeTab === 'home' && (
           user ? (
-            user.role === 'DOCTOR' ? (
+            user?.role === 'DOCTOR' ? (
               <DoctorDashboard onOpenConsultationRoom={(c) => setActiveConsultation(c)} />
             ) : (
               <PatientDashboard
@@ -354,10 +402,12 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ThemeProvider>
+    <GlobalErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
+    </GlobalErrorBoundary>
   );
 }

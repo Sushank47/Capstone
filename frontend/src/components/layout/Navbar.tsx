@@ -125,7 +125,7 @@ export const Navbar: React.FC<Props> = ({
           {user ? (
             <div className="flex items-center gap-2">
               {/* Upload Report Button */}
-              {user.role === 'PATIENT' && (
+              {user?.role === 'PATIENT' && (
                 <button
                   onClick={openUploadModal}
                   className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all"
@@ -151,8 +151,8 @@ export const Navbar: React.FC<Props> = ({
                   <div className="absolute right-0 mt-2 w-56 glass-panel rounded-xl shadow-xl p-2 border z-50 dark:border-slate-800 border-slate-200">
                     <div className="px-3 py-2 border-b mb-1 dark:border-slate-800 border-slate-200">
                       <p className="text-xs font-bold dark:text-white text-slate-900">{user?.full_name || 'User'}</p>
-                      <p className="text-[11px] dark:text-slate-400 text-slate-500 truncate">{user.email}</p>
-                      {user.role === 'DOCTOR' && (
+                      <p className="text-[11px] dark:text-slate-400 text-slate-500 truncate">{user?.email}</p>
+                      {user?.role === 'DOCTOR' && (
                         <span className="mt-1 text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-extrabold inline-block">
                           VERIFIED DOCTOR ✓
                         </span>
@@ -162,10 +162,12 @@ export const Navbar: React.FC<Props> = ({
                     <button
                       onClick={() => {
                         setShowProfileMenu(false);
-                        logout();
                         setActiveTab('home');
                         window.location.hash = 'home';
-                        window.location.reload();
+                        logout();
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 50);
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 font-semibold"
                     >
