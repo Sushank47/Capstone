@@ -3,7 +3,7 @@ import type { ChatMessage, Consultation } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { speakFemaleVoice, stopSpeech } from '../../utils/speechUtils';
-import { Send, Bot, User as UserIcon, Volume2, VolumeX, Trash2, Phone, Video, Clock, CheckCircle2, MessageSquare } from 'lucide-react';
+import { Send, Bot, User as UserIcon, Volume2, VolumeX, Trash2, Phone, Video, Clock, CheckCircle2, MessageSquare, Plus } from 'lucide-react';
 
 interface Props {
   openUploadModal?: () => void;
@@ -381,7 +381,7 @@ export const MedicalAIChat: React.FC<Props> = ({ openUploadModal, openAuthModal 
                           key={idx}
                           className="px-2 py-0.5 rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 font-mono"
                         >
-                          📄 {c.document_name} ({c.relevance_score ? `${(c.relevance_score * 100).toFixed(0)}% match` : 'Ref'})
+                          📄 {typeof c === 'string' ? c : c?.document_name || 'Medical Document'} ({c?.relevance_score ? `${(c.relevance_score * 100).toFixed(0)}% match` : 'Ref'})
                         </span>
                       ))}
                     </div>
