@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Depends, status
+from typing import List, Optional, Dict
+from fastapi import APIRouter, HTTPException, Depends, status, WebSocket, WebSocketDisconnect
 from bson import ObjectId
 
 from app.database import get_collection
@@ -478,3 +478,28 @@ async def ensure_demo_doctor_seeded():
         }},
         upsert=True
     )
+
+active_call_rooms: Dict[str, List[WebSocket]] = {}
+
+@router.websocket("/ws/call/{consultation_id}")
+async def call_websocket_endpoint(websocket: WebSocket, consultation_id: str):
+    await websocket.accept()
+    if consultation_id not in active_call_rooms:
+        active_call_rooms[consultation_id] = []
+    active_call_rooms[consultation_id].append(websocket)
+
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Broadcast signaling messages (SDP offer/answer, ICE candidates) to other connected peer
+            for peer in list(active_call_rooms.get(consultation_id, [])):
+                if peer != websocket:
+                    try:
+                        await peer.send_text(data)
+                    except Exception:
+                        pass
+    except WebSocketDisconnect:
+        if consultation_id in active_call_rooms and websocket in active_call_rooms[consultation_id]:
+            active_call_rooms[consultation_id].remove(websocket)
+            if not active_call_rooms[consultation_id]:
+                del active_call_rooms[consultation_id]
