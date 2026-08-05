@@ -11,9 +11,12 @@ import { DocumentDetailModal } from './components/documents/DocumentDetailModal'
 import { ReportComparison } from './components/comparison/ReportComparison';
 import { MedicalAIChat } from './components/chat/MedicalAIChat';
 import { ConsentManager } from './components/security/ConsentManager';
-import type { Document, AccessRequest } from './types';
+import { DoctorDirectory } from './components/doctors/DoctorDirectory';
+import { DoctorDashboard } from './components/doctors/DoctorDashboard';
+import { DoctorPatientChat } from './components/doctors/DoctorPatientChat';
+import type { Document, AccessRequest, Consultation } from './types';
 import { api } from './services/api';
-import { Activity, Info, LogIn } from 'lucide-react';
+import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope } from 'lucide-react';
 
 const AppContent: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
@@ -47,7 +50,9 @@ const AppContent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!user && activeTab !== 'home' && activeTab !== 'chat') {
+    if (user?.role === 'DOCTOR' && activeTab === 'home') {
+      setActiveTab('doctor_portal', false);
+    } else if (!user && activeTab !== 'home' && activeTab !== 'chat') {
       setActiveTab('home', false);
       window.location.hash = 'home';
     }
@@ -55,22 +60,31 @@ const AppContent: React.FC = () => {
 
   const [documents, setDocuments] = useState<Document[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
   
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [activeConsultation, setActiveConsultation] = useState<Consultation | null>(null);
 
   const fetchAppData = async () => {
     if (!user) return;
     try {
-      const [docsRes, reqRes] = await Promise.all([
-        api.get<Document[]>('/api/documents'),
-        api.get<AccessRequest[]>('/api/consent/requests'),
-      ]);
-      setDocuments(docsRes.data);
-      setRequests(reqRes.data);
+      if (user.role === 'PATIENT') {
+        const [docsRes, reqRes, consultRes] = await Promise.allSettled([
+          api.get<Document[]>('/api/documents'),
+          api.get<AccessRequest[]>('/api/consent/requests'),
+          api.get<Consultation[]>('/api/doctors/consultations/my')
+        ]);
+        if (docsRes.status === 'fulfilled') setDocuments(docsRes.value.data);
+        if (reqRes.status === 'fulfilled') setRequests(reqRes.value.data);
+        if (consultRes.status === 'fulfilled') setConsultations(consultRes.value.data);
+      } else if (user.role === 'DOCTOR') {
+        const consultRes = await api.get<Consultation[]>('/api/doctors/consultations/my');
+        setConsultations(consultRes.data);
+      }
     } catch {
-      console.error('Failed to load application documents or consent requests.');
+      console.error('Failed to load application data');
     }
   };
 
@@ -101,16 +115,16 @@ const AppContent: React.FC = () => {
       />
 
       {/* Main App Body Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
 
         {/* Guest Access Indicator Header */}
         {!user && (
-          <div className="mb-6 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/25 flex items-center justify-between gap-4 text-xs font-semibold text-teal-700 dark:text-teal-300">
+          <div className="p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/25 flex items-center justify-between gap-4 text-xs font-semibold text-teal-700 dark:text-teal-300">
             <div className="flex items-center gap-2">
               <Info className="w-4 h-4 shrink-0 text-teal-500" />
               <span>
                 <strong>Guest Access Mode:</strong> You can test AI Chat Q&A right now without registering. 
-                Sign in to save reports, compare historical lab results, and manage Zero-Trust security logs.
+                Sign in to save reports, consult verified doctors, and manage Zero-Trust security logs.
               </span>
             </div>
             <button
@@ -123,22 +137,126 @@ const AppContent: React.FC = () => {
           </div>
         )}
 
+        {/* Consultation Status Notification Bar for Patients & Doctors */}
+        {user && consultations.length > 0 && (
+          <div className="space-y-2">
+            {consultations.map((consult) => {
+              if (user.role === 'PATIENT') {
+                if (consult.status === 'ACCEPTED') {
+                  return (
+                    <div
+                      key={consult.id}
+                      className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-emerald-500/10 animate-in fade-in"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">
+                            Consultation Accepted by {consult.doctor_name}!
+                          </p>
+                          <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">
+                            Status: <strong className="uppercase">ACCEPTED</strong> • Doctor is ready for Video/Audio Telehealth Call.
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveConsultation(consult)}
+                        className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                      >
+                        <Video className="w-4 h-4" />
+                        <span>Enter Room & Start Call</span>
+                      </button>
+                    </div>
+                  );
+                } else if (consult.status === 'PENDING') {
+                  return (
+                    <div
+                      key={consult.id}
+                      className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 text-amber-900 dark:text-amber-300 flex items-center justify-between gap-3 shadow-sm animate-pulse"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">
+                            Consultation Request Sent to {consult.doctor_name}
+                          </p>
+                          <p className="text-[11px] text-amber-700 dark:text-amber-300 font-medium">
+                            Status: <strong className="uppercase">PENDING ACCEPTANCE</strong> • Awaiting doctor review.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              } else if (user.role === 'DOCTOR') {
+                if (consult.status === 'PENDING') {
+                  return (
+                    <div
+                      key={consult.id}
+                      className="p-3.5 rounded-2xl bg-teal-500/15 border border-teal-500/40 text-teal-900 dark:text-teal-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Stethoscope className="w-5 h-5 text-teal-500 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">
+                            New Patient Consultation Request: {consult.patient_name}
+                          </p>
+                          <p className="text-[11px] text-teal-700 dark:text-teal-300 font-medium">
+                            Inquiry: "{consult.symptoms_note}"
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveTab('doctor_portal')}
+                        className="px-4 py-2 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Review & Accept Request</span>
+                      </button>
+                    </div>
+                  );
+                }
+              }
+              return null;
+            })}
+          </div>
+        )}
+
         {/* Tab Views */}
         {activeTab === 'home' && (
           user ? (
-            <PatientDashboard
-              documents={documents}
-              requests={requests}
-              onSelectDocument={(doc) => setSelectedDocument(doc)}
-              openUploadModal={() => setIsUploadModalOpen(true)}
-              setActiveTab={(tab) => setActiveTab(tab)}
-            />
+            user.role === 'DOCTOR' ? (
+              <DoctorDashboard onOpenConsultationRoom={(c) => setActiveConsultation(c)} />
+            ) : (
+              <PatientDashboard
+                documents={documents}
+                requests={requests}
+                onSelectDocument={(doc) => setSelectedDocument(doc)}
+                openUploadModal={() => setIsUploadModalOpen(true)}
+                setActiveTab={(tab) => setActiveTab(tab)}
+              />
+            )
           ) : (
             <HomePageShowcase
               onTryGuestChat={() => setActiveTab('chat')}
               onOpenAuthModal={() => setIsAuthModalOpen(true)}
             />
           )
+        )}
+
+        {activeTab === 'doctor_portal' && (
+          <DoctorDashboard onOpenConsultationRoom={(c) => setActiveConsultation(c)} />
+        )}
+
+        {activeTab === 'doctors' && (
+          <DoctorDirectory
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onConsultationRequested={() => {
+              fetchAppData();
+            }}
+          />
         )}
 
         {activeTab === 'chat' && (
@@ -149,7 +267,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'documents' && (
-          user ? (
+          user?.role === 'PATIENT' ? (
             <DocumentList
               documents={documents}
               onSelectDocument={(doc) => setSelectedDocument(doc)}
@@ -170,7 +288,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'compare' && (
-          user ? (
+          user?.role === 'PATIENT' ? (
             <ReportComparison documents={documents} />
           ) : (
             <div className="py-12 text-center space-y-4">
@@ -206,7 +324,7 @@ const AppContent: React.FC = () => {
         </div>
       </footer>
 
-      {/* Modals */}
+      {/* Modals & Telehealth Consultation Room */}
       <DocumentUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
@@ -222,6 +340,13 @@ const AppContent: React.FC = () => {
         document={selectedDocument}
         onClose={() => setSelectedDocument(null)}
       />
+
+      {activeConsultation && (
+        <DoctorPatientChat
+          consultation={activeConsultation}
+          onClose={() => setActiveConsultation(null)}
+        />
+      )}
 
     </div>
   );

@@ -63,3 +63,14 @@ async def get_user_chat_history(current_user: dict = Depends(get_current_user)):
     entries = await cursor.to_list(length=200)
     entries.sort(key=lambda x: x.get("created_at", ""))
     return entries
+
+@router.delete("/history")
+async def clear_user_chat_history(current_user: dict = Depends(get_current_user)):
+    """
+    Clears saved persistent chat history for the authenticated user.
+    """
+    user_id = str(current_user["_id"])
+    chat_coll = get_collection("chat_history")
+    result = await chat_coll.delete_many({"user_id": user_id})
+    return {"status": "success", "deleted_count": result.deleted_count}
+

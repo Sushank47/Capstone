@@ -43,12 +43,18 @@ export const Navbar: React.FC<Props> = ({
   const patientTabs = [
     { id: 'home', label: 'Home Overview', icon: Home },
     { id: 'chat', label: 'Try AI Chat', icon: MessageSquare },
+    { id: 'doctors', label: 'Find Doctors', icon: Stethoscope },
     { id: 'documents', label: 'Medical Vault', icon: FileText },
     { id: 'compare', label: 'Compare Reports', icon: GitCompare },
     { id: 'security', label: 'Security & Consent', icon: ShieldCheck, badge: pendingRequestsCount },
   ];
 
-  const currentTabs = !user ? guestTabs : patientTabs;
+  const doctorTabs = [
+    { id: 'doctor_portal', label: 'Doctor Portal', icon: Stethoscope },
+    { id: 'security', label: 'Security & Audit', icon: ShieldCheck },
+  ];
+
+  const currentTabs = !user ? guestTabs : user.role === 'DOCTOR' ? doctorTabs : patientTabs;
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b transition-colors duration-200">
@@ -56,7 +62,7 @@ export const Navbar: React.FC<Props> = ({
         
         {/* Brand Logo */}
         <div 
-          onClick={() => setActiveTab('home')}
+          onClick={() => setActiveTab(user?.role === 'DOCTOR' ? 'doctor_portal' : 'home')}
           className="flex items-center gap-2.5 cursor-pointer"
         >
           <div className="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center shadow-md shadow-teal-500/20">
@@ -66,9 +72,15 @@ export const Navbar: React.FC<Props> = ({
             <span className="font-extrabold text-base tracking-tight dark:text-white text-slate-900">
               MediPro AI
             </span>
-            <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold px-2 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
-              Healthcare Intelligence
-            </span>
+            {user?.role === 'DOCTOR' ? (
+              <span className="hidden sm:inline-block ml-2 text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+                DOCTOR PORTAL
+              </span>
+            ) : (
+              <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold px-2 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                Healthcare Intelligence
+              </span>
+            )}
           </div>
         </div>
 
