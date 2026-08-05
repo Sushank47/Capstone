@@ -10,7 +10,7 @@ from app.models.doctor import (
     DoctorReportAccessRequest
 )
 from app.models.consent import AccessRequestResponse, ConsentStatus
-from app.security.auth import get_current_user, require_role, get_password_hash
+from app.security.auth import get_current_user, require_role, hash_password
 from app.services.audit_service import log_audit_event
 from app.models.audit import AuditAction
 
@@ -34,7 +34,7 @@ async def register_doctor(req: DoctorRegistration):
         "_id": user_id,
         "email": req.email.lower(),
         "full_name": req.full_name,
-        "password_hash": get_password_hash(req.password),
+        "password_hash": hash_password(req.password),
         "role": "DOCTOR",
         "is_verified": True,
         "created_at": now_iso
@@ -366,7 +366,7 @@ async def ensure_demo_doctor_seeded():
             "_id": u1_id,
             "email": doc1_email,
             "full_name": "Dr. Marcus Vance, MD",
-            "password_hash": get_password_hash("DoctorPass123!"),
+            "password_hash": hash_password("DoctorPass123!"),
             "role": "DOCTOR",
             "is_verified": True,
             "created_at": now_iso
@@ -404,7 +404,7 @@ async def ensure_demo_doctor_seeded():
             "_id": u2_id,
             "email": doc2_email,
             "full_name": "Dr. Elena Rostova, MD",
-            "password_hash": get_password_hash("DoctorPass123!"),
+            "password_hash": hash_password("DoctorPass123!"),
             "role": "DOCTOR",
             "is_verified": True,
             "created_at": now_iso

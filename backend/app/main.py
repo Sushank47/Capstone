@@ -4,10 +4,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import init_db
-from app.routers import auth, documents, ai, chat, consent, audit, admin
+from app.routers import auth, documents, ai, chat, consent, audit, admin, doctors
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("mediexplain")
+logger = logger = logging.getLogger("mediexplain")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,14 +49,9 @@ app.include_router(admin.router)
 app.include_router(doctors.router)
 
 @app.get("/")
-async def root_health():
+async def root():
     return {
         "status": "healthy",
-        "service": settings.APP_NAME,
-        "environment": settings.ENVIRONMENT,
-        "docs": "/docs"
+        "service": "MediExplain AI Core Backend Service",
+        "version": "1.0.0"
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=settings.PORT, reload=True)
