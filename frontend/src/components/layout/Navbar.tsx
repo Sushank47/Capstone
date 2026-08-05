@@ -165,9 +165,6 @@ export const Navbar: React.FC<Props> = ({
                         setActiveTab('home');
                         window.location.hash = 'home';
                         logout();
-                        setTimeout(() => {
-                          window.location.reload();
-                        }, 50);
                       }}
                       className="w-full text-left px-3 py-2 rounded-lg text-xs text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 font-semibold"
                     >
