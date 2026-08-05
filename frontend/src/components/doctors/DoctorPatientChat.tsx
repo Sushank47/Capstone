@@ -16,7 +16,7 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
   const [isSending, setIsSending] = useState(false);
 
   // Audio / Video Call State & Media Devices
-  const [activeCallType, setActiveCallType] = useState<'AUDIO' | 'VIDEO' | null>('VIDEO'); // Auto start call on join
+  const [activeCallType, setActiveCallType] = useState<'AUDIO' | 'VIDEO' | null>('VIDEO');
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [callDurationSeconds, setCallDurationSeconds] = useState(0);
@@ -24,50 +24,105 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [hasCameraAccess, setHasCameraAccess] = useState<boolean>(false);
+  const [audioLevel, setAudioLevel] = useState<number>(0);
 
+  // Real-time Media Devices (Camera & Microphone) Setup
   useEffect(() => {
     let interval: any = null;
+    let currentStream: MediaStream | null = null;
+
     if (activeCallType) {
       setCallDurationSeconds(0);
       interval = setInterval(() => {
         setCallDurationSeconds((prev) => prev + 1);
       }, 1000);
 
-      // Request browser WebRTC camera & microphone stream
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices
-          .getUserMedia({
-            video: activeCallType === 'VIDEO',
-            audio: true
-          })
-          .then((stream) => {
-            setMediaStream(stream);
-            setHasCameraAccess(activeCallType === 'VIDEO');
-            if (localVideoRef.current) {
-              localVideoRef.current.srcObject = stream;
+      const startMediaDevices = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+        try {
+          // Attempt Video + Audio Media Stream
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: activeCallType === 'VIDEO' ? { facingMode: 'user' } : false,
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true
             }
-          })
-          .catch((err) => {
-            console.warn('Browser media device access fallback:', err);
-            setHasCameraAccess(false);
           });
-      }
+          currentStream = stream;
+          setMediaStream(stream);
+          setHasCameraAccess(activeCallType === 'VIDEO');
+        } catch (err) {
+          console.warn('Video media stream unavailable, falling back to audio microphone:', err);
+          try {
+            // Fallback to Audio Only stream
+            const audioStream = await navigator.mediaDevices.getUserMedia({
+              audio: { echoCancellation: true, noiseSuppression: true }
+            });
+            currentStream = audioStream;
+            setMediaStream(audioStream);
+            setHasCameraAccess(false);
+          } catch (audioErr) {
+            console.warn('Microphone access denied or unsupported:', audioErr);
+            setHasCameraAccess(false);
+          }
+        }
+      };
+
+      startMediaDevices();
     } else {
       setCallDurationSeconds(0);
-      if (mediaStream) {
-        mediaStream.getTracks().forEach((track) => track.stop());
-        setMediaStream(null);
-      }
       setHasCameraAccess(false);
     }
 
     return () => {
       if (interval) clearInterval(interval);
-      if (mediaStream) {
-        mediaStream.getTracks().forEach((track) => track.stop());
+      if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
       }
     };
   }, [activeCallType]);
+
+  // Audio Level Meter (WebAudio API Analyser)
+  useEffect(() => {
+    if (!mediaStream) {
+      setAudioLevel(0);
+      return;
+    }
+
+    let audioCtx: AudioContext | null = null;
+    let animId: number | null = null;
+
+    try {
+      audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(mediaStream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const updateMeter = () => {
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        const avg = sum / dataArray.length;
+        setAudioLevel(Math.min(100, Math.round((avg / 255) * 250)));
+        animId = requestAnimationFrame(updateMeter);
+      };
+
+      updateMeter();
+    } catch (e) {
+      console.warn('Audio meter error:', e);
+    }
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+      if (audioCtx) audioCtx.close();
+    };
+  }, [mediaStream]);
 
   const toggleMute = () => {
     if (mediaStream) {
@@ -171,7 +226,7 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
           </div>
         </div>
 
-        {/* Symptoms Note Banner */}
+        {/* Chief Complaint Banner */}
         <div className="p-3 my-3 rounded-xl dark:bg-slate-950/80 dark:border-slate-800 bg-slate-50 border border-slate-200 text-xs shrink-0 flex items-center justify-between">
           <p className="text-slate-700 dark:text-slate-300 font-medium">
             <strong className="text-teal-600 dark:text-teal-400">Chief Complaint:</strong> "{consultation.symptoms_note}"
@@ -248,11 +303,17 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
               </div>
             </div>
 
-            {/* Video Viewport / Local WebRTC Camera Stream */}
+            {/* Live Camera Viewport / WebRTC Stream element */}
             <div className="w-full h-64 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
               {activeCallType === 'VIDEO' && hasCameraAccess && !isVideoOff ? (
                 <video
-                  ref={localVideoRef}
+                  ref={(el) => {
+                    localVideoRef.current = el;
+                    if (el && mediaStream && el.srcObject !== mediaStream) {
+                      el.srcObject = mediaStream;
+                      el.play().catch(() => {});
+                    }
+                  }}
                   autoPlay
                   playsInline
                   muted
@@ -281,15 +342,19 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
                   <p className="text-xs text-slate-400 font-medium">
                     {isVideoOff ? 'Camera Feed Turned Off' : 'Encrypted WebRTC Audio Stream Active'}
                   </p>
-                  {!isMuted && (
-                    <div className="flex items-center justify-center gap-1 pt-1">
-                      <span className="w-1 h-3 bg-teal-400 rounded animate-pulse"></span>
-                      <span className="w-1 h-5 bg-teal-400 rounded animate-pulse delay-75"></span>
-                      <span className="w-1 h-2 bg-teal-400 rounded animate-pulse delay-150"></span>
-                      <span className="w-1 h-6 bg-teal-400 rounded animate-pulse"></span>
-                      <span className="w-1 h-3 bg-teal-400 rounded animate-pulse delay-100"></span>
-                    </div>
-                  )}
+                </div>
+              )}
+
+              {/* Real-time Microphone Audio Waveform Indicator */}
+              {!isMuted && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-teal-500/40 text-teal-300 text-[10px] font-bold">
+                  <span>Microphone Active</span>
+                  <div className="flex items-center gap-0.5 h-3">
+                    <span className="w-0.5 bg-teal-400 rounded transition-all duration-75" style={{ height: `${Math.max(3, audioLevel * 0.15)}px` }}></span>
+                    <span className="w-0.5 bg-teal-400 rounded transition-all duration-75" style={{ height: `${Math.max(3, audioLevel * 0.25)}px` }}></span>
+                    <span className="w-0.5 bg-teal-400 rounded transition-all duration-75" style={{ height: `${Math.max(3, audioLevel * 0.2)}px` }}></span>
+                    <span className="w-0.5 bg-teal-400 rounded transition-all duration-75" style={{ height: `${Math.max(3, audioLevel * 0.3)}px` }}></span>
+                  </div>
                 </div>
               )}
             </div>

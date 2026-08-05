@@ -276,31 +276,6 @@ const AppContent: React.FC = () => {
                       </button>
                     </div>
                   );
-                } else if (consult.status === 'REJECTED' || consult.status === 'EXPIRED') {
-                  return (
-                    <div
-                      key={consult.id}
-                      className="p-3.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-900 dark:text-rose-300 flex items-center justify-between gap-3 shadow-sm"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Info className="w-5 h-5 text-rose-500 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">
-                            Consultation Request {consult.status === 'REJECTED' ? 'Declined by Doctor' : 'Expired after 3 minutes'}
-                          </p>
-                          <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">
-                            You can choose another verified doctor or submit a new request in Find Doctors.
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => setActiveTab('doctors')}
-                        className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition-all"
-                      >
-                        Request Again
-                      </button>
-                    </div>
-                  );
                 }
               } else if (user?.role === 'DOCTOR') {
                 if (consult.status === 'PENDING') {
