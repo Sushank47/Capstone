@@ -179,6 +179,15 @@ export const DoctorDashboard: React.FC<Props> = ({ onOpenConsultationRoom }) => 
                     </button>
                   )}
 
+                  {consult.status === 'ACCEPTED' && (
+                    <button
+                      onClick={() => handleUpdateStatus(consult.id, 'COMPLETED')}
+                      className="px-3.5 py-1.5 rounded-lg dark:bg-slate-900 dark:hover:bg-slate-800 text-teal-700 dark:text-teal-300 border border-teal-500/30 text-xs font-bold shadow-sm transition-all"
+                    >
+                      Complete & Close Call
+                    </button>
+                  )}
+
                   <button
                     onClick={() => onOpenConsultationRoom(consult)}
                     className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
