@@ -36,7 +36,7 @@ async def register_doctor(req: DoctorRegistration):
         "full_name": req.full_name,
         "password_hash": get_password_hash(req.password),
         "role": "DOCTOR",
-        "is_verified": True,  # Verified during medical license submission
+        "is_verified": True,
         "created_at": now_iso
     }
     await users_coll.insert_one(user_doc)
@@ -89,11 +89,11 @@ async def register_doctor(req: DoctorRegistration):
 async def list_verified_doctors(specialization: Optional[str] = None):
     doctors_coll = get_collection("doctors")
 
-    # Always ensure default evaluation doctors exist
+    # Always ensure default evaluation doctors are seeded in MongoDB
     await ensure_demo_doctor_seeded()
 
-    query = {"verification_status": VerificationStatus.VERIFIED.value}
-    if specialization:
+    query = {}
+    if specialization and specialization != "ALL":
         query["specialization"] = specialization
 
     cursor = doctors_coll.find(query)
@@ -101,17 +101,29 @@ async def list_verified_doctors(specialization: Optional[str] = None):
 
     results = []
     for d in docs:
+        spec_val = d.get("specialization", "General Medicine")
+        try:
+            parsed_spec = Specialization(spec_val)
+        except ValueError:
+            parsed_spec = Specialization.GENERAL_MEDICINE
+
+        status_val = d.get("verification_status", "VERIFIED")
+        try:
+            parsed_status = VerificationStatus(status_val)
+        except ValueError:
+            parsed_status = VerificationStatus.VERIFIED
+
         results.append(DoctorProfile(
             id=str(d["_id"]),
             user_id=d.get("user_id", str(d["_id"])),
             full_name=d.get("full_name", "Doctor"),
             email=d.get("email", "doctor@mediexplain.ai"),
             medical_license_number=d.get("medical_license_number", "MD-VERIFIED"),
-            specialization=Specialization(d.get("specialization", "General Medicine")),
+            specialization=parsed_spec,
             experience_years=d.get("experience_years", 10),
             hospital_affiliation=d.get("hospital_affiliation", "General Health Center"),
             bio=d.get("bio", "Verified medical practitioner"),
-            verification_status=VerificationStatus.VERIFIED,
+            verification_status=parsed_status,
             rating=d.get("rating", 4.9),
             consultations_completed=d.get("consultations_completed", 50),
             is_available=d.get("is_available", True),
@@ -184,7 +196,6 @@ async def get_my_consultations(current_user: dict = Depends(get_current_user)):
     role = current_user.get("role", "PATIENT")
 
     if role == "DOCTOR":
-        # Find doctor profile
         doctors_coll = get_collection("doctors")
         doc_prof = await doctors_coll.find_one({"user_id": user_id})
         doc_id = str(doc_prof["_id"]) if doc_prof else user_id
@@ -344,14 +355,13 @@ async def ensure_demo_doctor_seeded():
     doctors_coll = get_collection("doctors")
     users_coll = get_collection("users")
 
+    now_iso = datetime.utcnow().isoformat()
+
     # Doctor 1: Dr. Marcus Vance (Cardiologist)
     doc1_email = "dr.marcus@mediexplain.ai"
-    existing1 = await users_coll.find_one({"email": doc1_email})
-    if not existing1:
+    u1_doc = await users_coll.find_one({"email": doc1_email})
+    if not u1_doc:
         u1_id = str(uuid.uuid4())
-        d1_id = str(uuid.uuid4())
-        now_iso = datetime.utcnow().isoformat()
-
         await users_coll.insert_one({
             "_id": u1_id,
             "email": doc1_email,
@@ -361,9 +371,13 @@ async def ensure_demo_doctor_seeded():
             "is_verified": True,
             "created_at": now_iso
         })
+    else:
+        u1_id = str(u1_doc["_id"])
 
-        await doctors_coll.insert_one({
-            "_id": d1_id,
+    # Upsert doctor profile 1 unconditionally into MongoDB
+    await doctors_coll.update_one(
+        {"email": doc1_email},
+        {"$set": {
             "user_id": u1_id,
             "full_name": "Dr. Marcus Vance, MD",
             "email": doc1_email,
@@ -377,16 +391,15 @@ async def ensure_demo_doctor_seeded():
             "consultations_completed": 184,
             "is_available": True,
             "created_at": now_iso
-        })
+        }},
+        upsert=True
+    )
 
     # Doctor 2: Dr. Elena Rostova (Endocrinologist)
     doc2_email = "dr.elena@mediexplain.ai"
-    existing2 = await users_coll.find_one({"email": doc2_email})
-    if not existing2:
+    u2_doc = await users_coll.find_one({"email": doc2_email})
+    if not u2_doc:
         u2_id = str(uuid.uuid4())
-        d2_id = str(uuid.uuid4())
-        now_iso = datetime.utcnow().isoformat()
-
         await users_coll.insert_one({
             "_id": u2_id,
             "email": doc2_email,
@@ -396,9 +409,13 @@ async def ensure_demo_doctor_seeded():
             "is_verified": True,
             "created_at": now_iso
         })
+    else:
+        u2_id = str(u2_doc["_id"])
 
-        await doctors_coll.insert_one({
-            "_id": d2_id,
+    # Upsert doctor profile 2 unconditionally into MongoDB
+    await doctors_coll.update_one(
+        {"email": doc2_email},
+        {"$set": {
             "user_id": u2_id,
             "full_name": "Dr. Elena Rostova, MD",
             "email": doc2_email,
@@ -412,4 +429,6 @@ async def ensure_demo_doctor_seeded():
             "consultations_completed": 156,
             "is_available": True,
             "created_at": now_iso
-        })
+        }},
+        upsert=True
+    )
