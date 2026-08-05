@@ -212,26 +212,33 @@ const AppContent: React.FC = () => {
                   return (
                     <div
                       key={consult.id}
-                      className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 dark:text-emerald-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-emerald-500/10 animate-in fade-in"
+                      className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border-2 border-emerald-500 text-emerald-900 dark:text-emerald-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl shadow-emerald-500/20 animate-pulse"
                     >
-                      <div className="flex items-center gap-2.5">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-xl shadow-md shrink-0">
+                          <Phone className="w-5 h-5 animate-bounce text-slate-950" />
+                        </div>
                         <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">
-                            Consultation Accepted by {consult.doctor_name}!
-                          </p>
-                          <p className="text-[11px] text-emerald-700 dark:text-emerald-300 font-medium">
-                            Status: <strong className="uppercase">ACCEPTED</strong> • Doctor is ready for Video/Audio Telehealth Call.
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">
+                              📞 TELEHEALTH CALL ACTIVE: {user?.role === 'PATIENT' ? consult.doctor_name : consult.patient_name}
+                            </p>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-extrabold animate-pulse">
+                              ROOM READY
+                            </span>
+                          </div>
+                          <p className="text-xs text-emerald-700 dark:text-emerald-300 font-medium mt-0.5">
+                            Status: <strong className="uppercase">ACCEPTED</strong> • Click below to join live Video/Audio call now.
                           </p>
                         </div>
                       </div>
 
                       <button
                         onClick={() => setActiveConsultation(consult)}
-                        className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 shrink-0"
+                        className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2 shrink-0"
                       >
                         <Video className="w-4 h-4" />
-                        <span>Enter Room & Start Call</span>
+                        <span>Join Live Telehealth Call</span>
                       </button>
                     </div>
                   );
