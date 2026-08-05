@@ -145,19 +145,28 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* 1-Click Evaluation Login Button */}
+        {/* 1-Click Evaluation Login Buttons */}
         {mode === 'LOGIN' && (
           <div className="mb-6 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
             <p className="text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> Evaluation Quick Patient Sign In
+              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> 1-Click Quick Evaluation Login
             </p>
-            <button
-              type="button"
-              onClick={handleDemoPatient}
-              className="w-full py-2.5 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center"
-            >
-              Patient Evaluation Login
-            </button>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleDemoPatient}
+                className="py-2.5 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center truncate"
+              >
+                Patient Login
+              </button>
+              <button
+                type="button"
+                onClick={handleDemoDoctor1}
+                className="py-2.5 px-3 rounded-lg bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800 font-bold text-xs shadow-sm transition-all text-center truncate"
+              >
+                Doctor Login
+              </button>
+            </div>
           </div>
         )}
 
