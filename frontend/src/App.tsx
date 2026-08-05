@@ -14,6 +14,7 @@ import { ConsentManager } from './components/security/ConsentManager';
 import { DoctorDirectory } from './components/doctors/DoctorDirectory';
 import { DoctorDashboard } from './components/doctors/DoctorDashboard';
 import { DoctorPatientChat } from './components/doctors/DoctorPatientChat';
+import { IncomingCallModal } from './components/common/IncomingCallModal';
 import type { Document, AccessRequest, Consultation } from './types';
 import { api } from './services/api';
 import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope, RefreshCw } from 'lucide-react';
@@ -118,6 +119,7 @@ const AppContent: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
+  const [dismissedCallIds, setDismissedCallIds] = useState<string[]>([]);
   
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -469,6 +471,21 @@ const AppContent: React.FC = () => {
           onClose={() => setActiveConsultation(null)}
         />
       )}
+
+      {/* Incoming Call Ringing Modal Popup for Patients */}
+      {user?.role === 'PATIENT' && !activeConsultation && (() => {
+        const ringingCall = consultations.find(c => c.status === 'ACCEPTED' && !dismissedCallIds.includes(c.id));
+        if (ringingCall) {
+          return (
+            <IncomingCallModal
+              consultation={ringingCall}
+              onAccept={() => setActiveConsultation(ringingCall)}
+              onDecline={() => setDismissedCallIds(prev => [...prev, ringingCall.id])}
+            />
+          );
+        }
+        return null;
+      })()}
 
     </div>
   );
