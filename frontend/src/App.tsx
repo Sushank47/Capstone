@@ -46,9 +46,16 @@ const AppContent: React.FC = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  useEffect(() => {
+    if (!user && activeTab !== 'home' && activeTab !== 'chat') {
+      setActiveTab('home', false);
+      window.location.hash = 'home';
+    }
+  }, [user]);
+
   const [documents, setDocuments] = useState<Document[]>([]);
   const [requests, setRequests] = useState<AccessRequest[]>([]);
-
+  
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
@@ -56,19 +63,14 @@ const AppContent: React.FC = () => {
   const fetchAppData = async () => {
     if (!user) return;
     try {
-      if (user.role === 'PATIENT') {
-        const [docsRes, reqRes] = await Promise.all([
-          api.get<Document[]>('/api/documents'),
-          api.get<AccessRequest[]>('/api/consent/requests'),
-        ]);
-        setDocuments(docsRes.data);
-        setRequests(reqRes.data);
-      } else if (user.role === 'ADMIN') {
-        const reqRes = await api.get<AccessRequest[]>('/api/consent/requests');
-        setRequests(reqRes.data);
-      }
+      const [docsRes, reqRes] = await Promise.all([
+        api.get<Document[]>('/api/documents'),
+        api.get<AccessRequest[]>('/api/consent/requests'),
+      ]);
+      setDocuments(docsRes.data);
+      setRequests(reqRes.data);
     } catch {
-      console.error('Failed to load application data.');
+      console.error('Failed to load application documents or consent requests.');
     }
   };
 
@@ -76,49 +78,39 @@ const AppContent: React.FC = () => {
     fetchAppData();
   }, [user]);
 
-  useEffect(() => {
-    if (user?.role === 'ADMIN' && activeTab === 'dashboard') {
-      setActiveTab('admin');
-    }
-  }, [user]);
-
   const pendingRequestsCount = requests.filter((r) => r.status === 'PENDING').length;
 
   if (authLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-slate-950 text-white' : 'bg-slate-50 text-slate-900'}`}>
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center mx-auto animate-pulse">
-            <Activity className="w-5 h-5 text-slate-950" />
-          </div>
-          <p className="text-xs font-semibold text-teal-400">Loading MediExplain AI...</p>
-        </div>
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-teal-400 font-bold text-sm">
+        <Activity className="w-6 h-6 animate-spin mr-2" /> Loading MediPro AI Healthcare Platform...
       </div>
     );
   }
 
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-200 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-
-      {/* Top Navbar */}
+      
+      {/* Top Navbar Header */}
       <Navbar
         activeTab={activeTab}
-        setActiveTab={(tab) => setActiveTab(tab)}
+        setActiveTab={setActiveTab}
         openUploadModal={() => setIsUploadModalOpen(true)}
         openAuthModal={() => setIsAuthModalOpen(true)}
         pendingRequestsCount={pendingRequestsCount}
       />
 
-      {/* Main App Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Main App Body Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-        {/* Guest Chat Info Notice when in Chat Tab */}
-        {!user && activeTab === 'chat' && (
-          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 text-xs text-amber-300">
+        {/* Guest Access Indicator Header */}
+        {!user && (
+          <div className="mb-6 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/25 flex items-center justify-between gap-4 text-xs font-semibold text-teal-700 dark:text-teal-300">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-amber-400 shrink-0" />
+              <Info className="w-4 h-4 shrink-0 text-teal-500" />
               <span>
-                <strong>Guest Chat Mode:</strong> You are using the AI Chatbot without signing in. No chat history or uploaded files are saved. <strong>Sign in</strong> to unlock persistent chat history and your private Medical Vault.
+                <strong>Guest Access Mode:</strong> You can test AI Chat Q&A right now without registering. 
+                Sign in to save reports, compare historical lab results, and manage Zero-Trust security logs.
               </span>
             </div>
             <button
@@ -157,7 +149,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'documents' && (
-          user?.role === 'PATIENT' ? (
+          user ? (
             <DocumentList
               documents={documents}
               onSelectDocument={(doc) => setSelectedDocument(doc)}
@@ -178,7 +170,7 @@ const AppContent: React.FC = () => {
         )}
 
         {activeTab === 'compare' && (
-          user?.role === 'PATIENT' ? (
+          user ? (
             <ReportComparison documents={documents} />
           ) : (
             <div className="py-12 text-center space-y-4">
@@ -197,7 +189,6 @@ const AppContent: React.FC = () => {
           <ConsentManager openAuthModal={() => setIsAuthModalOpen(true)} />
         )}
 
-
       </main>
 
       {/* Footer */}
@@ -205,7 +196,7 @@ const AppContent: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Activity className="w-4 h-4 text-teal-400" />
-            <span className="font-bold text-slate-300">MediExplain AI</span>
+            <span className="font-bold text-slate-300">MediPro AI</span>
             <span>© 2026 Enterprise SaaS Platform</span>
           </div>
 
@@ -216,12 +207,15 @@ const AppContent: React.FC = () => {
       </footer>
 
       {/* Modals */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-
       <DocumentUploadModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onUploadSuccess={fetchAppData}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
 
       <DocumentDetailModal
@@ -233,7 +227,7 @@ const AppContent: React.FC = () => {
   );
 };
 
-export const App: React.FC = () => {
+export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
@@ -241,7 +235,4 @@ export const App: React.FC = () => {
       </AuthProvider>
     </ThemeProvider>
   );
-};
-
-export default App;
 }
