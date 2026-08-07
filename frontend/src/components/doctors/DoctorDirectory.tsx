@@ -30,7 +30,13 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
     try {
       const queryUrl = selectedSpecialization !== 'ALL' ? `/api/doctors?specialization=${selectedSpecialization}` : '/api/doctors';
       const res = await api.get<Doctor[]>(queryUrl);
-      setDoctors(res.data);
+      const uniqueDocs = (res.data || []).filter((doc, index, self) =>
+        index === self.findIndex((d) =>
+          (d.email && d.email.toLowerCase() === doc.email.toLowerCase()) ||
+          (d.full_name && d.full_name.toLowerCase() === doc.full_name.toLowerCase())
+        )
+      );
+      setDoctors(uniqueDocs);
     } catch {
       console.error('Failed to load verified doctors');
     } finally {

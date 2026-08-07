@@ -487,6 +487,18 @@ async def ensure_demo_doctor_seeded():
         upsert=True
     )
 
+    # Clean up any legacy duplicate doctor entries from database
+    all_docs = await doctors_coll.find({}).to_list(length=300)
+    seen_ids = set()
+    for d in all_docs:
+        key = (d.get("email") or d.get("full_name") or "").lower().strip()
+        if not key:
+            continue
+        if key in seen_ids:
+            await doctors_coll.delete_one({"_id": d["_id"]})
+        else:
+            seen_ids.add(key)
+
 active_call_rooms: Dict[str, List[WebSocket]] = {}
 
 @router.websocket("/ws/call/{consultation_id}")
