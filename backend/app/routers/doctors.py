@@ -129,7 +129,15 @@ async def list_verified_doctors(specialization: Optional[str] = None):
             created_at=d.get("created_at", datetime.utcnow().isoformat())
         ))
 
-    return results
+    seen_keys = set()
+    unique_results = []
+    for item in results:
+        key = item.email.lower() if item.email else item.full_name.lower()
+        if key not in seen_keys:
+            seen_keys.add(key)
+            unique_results.append(item)
+
+    return unique_results
 
 @router.post("/consultations", response_model=ConsultationResponse)
 async def create_consultation_request(

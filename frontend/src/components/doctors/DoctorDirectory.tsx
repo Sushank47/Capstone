@@ -42,12 +42,18 @@ export const DoctorDirectory: React.FC<Props> = ({ onOpenAuthModal, onConsultati
     fetchDoctors();
   }, [selectedSpecialization]);
 
-  const filteredDoctors = doctors.filter((doc) => {
+  const filteredDoctors = doctors.filter((doc, index, self) => {
     const matchesSearch =
       doc.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.specialization.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.hospital_affiliation.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    
+    const isFirstOccurrence = self.findIndex((d) => 
+      (d.email && d.email.toLowerCase() === doc.email.toLowerCase()) || 
+      (d.full_name && d.full_name.toLowerCase() === doc.full_name.toLowerCase())
+    ) === index;
+
+    return matchesSearch && isFirstOccurrence;
   });
 
   const handleRequestClick = (doctor: Doctor) => {
