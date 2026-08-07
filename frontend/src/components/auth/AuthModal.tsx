@@ -76,36 +76,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleDemoPatient = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await register('Sarah Patient', 'sarah.patient@example.com', 'PatientPass123!', 'PATIENT').catch(() => {});
-      await login('sarah.patient@example.com', 'PatientPass123!');
-      onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to login with Sarah Patient account.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDemoDoctor = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      await login('dr.marcus@medipro.ai', 'DoctorPass123!').catch(async () => {
-        await api.get('/api/doctors');
-        await login('dr.marcus@medipro.ai', 'DoctorPass123!');
-      });
-      onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to login with Doctor evaluation account.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="relative w-full max-w-md dark:bg-slate-900 bg-white rounded-2xl p-6 shadow-2xl border dark:border-slate-700/80 border-slate-200 transition-colors duration-200 max-h-[90vh] overflow-y-auto">
@@ -128,31 +98,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Azure Key Vault & Medical License Verification</p>
           </div>
         </div>
-
-        {/* 1-Click Evaluation Login Buttons */}
-        {mode === 'LOGIN' && (
-          <div className="mb-6 p-3 rounded-xl bg-teal-500/10 border border-teal-500/30 space-y-2">
-            <p className="text-[11px] font-bold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> 1-Click Quick Evaluation Login
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={handleDemoPatient}
-                className="py-2.5 px-3 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-sm transition-all text-center truncate"
-              >
-                Patient Login
-              </button>
-              <button
-                type="button"
-                onClick={handleDemoDoctor}
-                className="py-2.5 px-3 rounded-lg bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800 font-bold text-xs shadow-sm transition-all text-center truncate"
-              >
-                Doctor Login
-              </button>
-            </div>
-          </div>
-        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-medium">
