@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import type { UserRole, Specialization } from '../../types';
 import { api } from '../../services/api';
-import { X, Lock, Mail, User as UserIcon, KeyRound, Sparkles, CheckCircle2, Eye, EyeOff, Award, Building2 } from 'lucide-react';
+import { X, Lock, Mail, User as UserIcon, KeyRound, Sparkles, CheckCircle2, Eye, EyeOff, Award, Building2, Trash2 } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -17,6 +17,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberPassword, setRememberPassword] = useState(true);
   const [otpCode, setOtpCode] = useState('123456');
 
   // Doctor Specific Fields
@@ -29,7 +30,85 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
+  const [hasSavedPatient, setHasSavedPatient] = useState(false);
+  const [hasSavedDoctor, setHasSavedDoctor] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setHasSavedPatient(Boolean(localStorage.getItem('saved_patient_email') && localStorage.getItem('saved_patient_pass')));
+      setHasSavedDoctor(Boolean(localStorage.getItem('saved_doctor_email') && localStorage.getItem('saved_doctor_pass')));
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const saveCredentials = (userEmail: string, userPass: string, isDoctor: boolean) => {
+    if (rememberPassword) {
+      if (isDoctor) {
+        localStorage.setItem('saved_doctor_email', userEmail);
+        localStorage.setItem('saved_doctor_pass', userPass);
+      } else {
+        localStorage.setItem('saved_patient_email', userEmail);
+        localStorage.setItem('saved_patient_pass', userPass);
+      }
+    }
+  };
+
+  const handleQuickPatientLogin = async () => {
+    const savedEmail = localStorage.getItem('saved_patient_email');
+    const savedPass = localStorage.getItem('saved_patient_pass');
+
+    if (savedEmail && savedPass) {
+      setLoading(true);
+      setError('');
+      try {
+        await login(savedEmail, savedPass);
+        onClose();
+      } catch {
+        setError('Saved patient credentials invalid. Please enter your email and password.');
+        setEmail(savedEmail);
+        setMode('LOGIN');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setMode('LOGIN');
+      setError('No saved patient credentials found. Please enter your email and password.');
+    }
+  };
+
+  const handleQuickDoctorLogin = async () => {
+    const savedEmail = localStorage.getItem('saved_doctor_email');
+    const savedPass = localStorage.getItem('saved_doctor_pass');
+
+    if (savedEmail && savedPass) {
+      setLoading(true);
+      setError('');
+      try {
+        await login(savedEmail, savedPass);
+        onClose();
+      } catch {
+        setError('Saved doctor credentials invalid. Please enter your email and password.');
+        setEmail(savedEmail);
+        setMode('LOGIN');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setMode('LOGIN');
+      setError('No saved doctor credentials found. Please enter your email and password.');
+    }
+  };
+
+  const handleClearSavedPasswords = () => {
+    localStorage.removeItem('saved_patient_email');
+    localStorage.removeItem('saved_patient_pass');
+    localStorage.removeItem('saved_doctor_email');
+    localStorage.removeItem('saved_doctor_pass');
+    setHasSavedPatient(false);
+    setHasSavedDoctor(false);
+    setSuccessMsg('Saved passwords cleared from this device.');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,10 +119,13 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
     try {
       if (mode === 'LOGIN') {
         await login(email, password);
+        const isDoc = email.toLowerCase().includes('doctor') || email.toLowerCase().includes('dr.');
+        saveCredentials(email, password, isDoc);
         onClose();
       } else if (mode === 'PATIENT_REGISTER') {
         await register(fullName, email, password, 'PATIENT');
-        setSuccessMsg('Account created in MongoDB Atlas! Enter confirmation code below to activate.');
+        saveCredentials(email, password, false);
+        setSuccessMsg('Account created! Enter verification code to activate.');
         setMode('OTP');
       } else if (mode === 'DOCTOR_REGISTER') {
         if (!medicalLicenseNumber || !hospitalAffiliation) {
@@ -62,6 +144,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
           bio: `Verified specialist in ${specialization}. Affiliated with ${hospitalAffiliation}.`
         });
         await login(email, password);
+        saveCredentials(email, password, true);
         setSuccessMsg('Doctor License Verified & Account Activated!');
         setTimeout(() => onClose(), 500);
       } else if (mode === 'OTP') {
@@ -98,6 +181,46 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Azure Key Vault & Medical License Verification</p>
           </div>
         </div>
+
+        {/* Quick Login Buttons (1-Click if Saved, Entry Prompt if Not) */}
+        {mode === 'LOGIN' && (
+          <div className="mb-6 p-3.5 rounded-2xl bg-teal-500/10 border border-teal-500/30 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-extrabold text-teal-800 dark:text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" /> Quick Account Login
+              </p>
+              {(hasSavedPatient || hasSavedDoctor) && (
+                <button
+                  type="button"
+                  onClick={handleClearSavedPasswords}
+                  className="text-[10px] text-rose-500 hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  <span>Clear Saved</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleQuickPatientLogin}
+                className="py-2.5 px-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-xs shadow-md transition-all text-center truncate flex items-center justify-center gap-1.5"
+              >
+                <span>Patient Login</span>
+                {hasSavedPatient && <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-950/20 text-slate-950">1-Click</span>}
+              </button>
+              <button
+                type="button"
+                onClick={handleQuickDoctorLogin}
+                className="py-2.5 px-3 rounded-xl bg-slate-900 border border-teal-500/40 text-teal-300 hover:bg-slate-800 font-extrabold text-xs shadow-md transition-all text-center truncate flex items-center justify-center gap-1.5"
+              >
+                <span>Doctor Login</span>
+                {hasSavedDoctor && <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300">1-Click</span>}
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs font-medium">
@@ -161,9 +284,6 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     <option value="Neurology">Neurology</option>
                     <option value="Pediatrics">Pediatrics</option>
                     <option value="Oncology">Oncology</option>
-                    <option value="Dermatology">Dermatology</option>
-                    <option value="Pulmonology">Pulmonology</option>
-                    <option value="Other">Other</option>
                   </select>
                 </div>
 
@@ -171,8 +291,9 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Experience (Years)</label>
                   <input
                     type="number"
-                    min={1}
-                    max={50}
+                    min="1"
+                    max="50"
+                    required
                     value={experienceYears}
                     onChange={(e) => setExperienceYears(Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl text-xs focus:outline-none focus:border-teal-500"
@@ -181,7 +302,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Hospital / Clinic Affiliation</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Hospital Affiliation</label>
                 <div className="relative">
                   <Building2 className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
                   <input
@@ -189,7 +310,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                     required
                     value={hospitalAffiliation}
                     onChange={(e) => setHospitalAffiliation(e.target.value)}
-                    placeholder="St. Jude Heart Institute"
+                    placeholder="e.g. St. Jude Heart & Health Institute"
                     className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white dark:placeholder-slate-500 rounded-xl text-xs focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                   />
                 </div>
@@ -197,7 +318,7 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
             </>
           )}
 
-          {(mode === 'LOGIN' || mode === 'PATIENT_REGISTER' || mode === 'DOCTOR_REGISTER') && (
+          {mode !== 'OTP' && (
             <>
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
@@ -217,12 +338,11 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                <div className="relative flex items-center">
-                  <KeyRound className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 pointer-events-none" />
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3 top-3" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
-                    autoComplete="new-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
@@ -231,93 +351,98 @@ export const AuthModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none p-1"
-                    title={showPassword ? "Hide password" : "Show password"}
+                    className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
+
+              {/* Remember Password Checkbox */}
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="rememberPass"
+                  checked={rememberPassword}
+                  onChange={(e) => setRememberPassword(e.target.checked)}
+                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                />
+                <label htmlFor="rememberPass" className="text-xs text-slate-600 dark:text-slate-400 font-medium select-none cursor-pointer">
+                  Save password on this device for 1-click quick login
+                </label>
+              </div>
             </>
           )}
 
           {mode === 'OTP' && (
-            <div className="space-y-3">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Confirmation Code</label>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirmation Code (OTP)</label>
               <input
                 type="text"
                 required
+                maxLength={6}
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value)}
                 placeholder="123456"
-                className="w-full text-center tracking-widest text-lg font-mono py-2.5 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl focus:outline-none focus:border-teal-500"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 text-slate-900 dark:bg-slate-950/70 dark:border-slate-700 dark:text-white rounded-xl text-center font-mono text-lg font-bold tracking-widest focus:outline-none focus:border-teal-500"
               />
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
-                Demo environment code is pre-filled. Click verify to enter.
-              </p>
+              <p className="text-[11px] text-slate-400 mt-1 text-center">Development Code pre-filled: 123456</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2"
+            className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs shadow-md shadow-teal-500/20 transition-all flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>
+              <span className="animate-pulse">Authenticating...</span>
+            ) : mode === 'LOGIN' ? (
+              'Sign In Account'
+            ) : mode === 'PATIENT_REGISTER' ? (
+              'Create Patient Account'
+            ) : mode === 'DOCTOR_REGISTER' ? (
+              'Register Verified Doctor'
             ) : (
-              <span>
-                {mode === 'LOGIN'
-                  ? 'Sign In to Vault'
-                  : mode === 'PATIENT_REGISTER'
-                  ? 'Register Patient Account'
-                  : mode === 'DOCTOR_REGISTER'
-                  ? 'Submit Doctor Verification'
-                  : 'Verify Security Code'}
-              </span>
+              'Verify & Sign In'
             )}
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t dark:border-slate-800 border-slate-200 text-center text-xs space-y-2">
+        {/* Footer Navigation Switches */}
+        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-center space-y-2">
           {mode === 'LOGIN' ? (
-            <div className="space-y-1">
-              <p className="text-slate-500 dark:text-slate-400 font-medium">
-                Need a patient account?{' '}
+            <>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                New Patient?{' '}
                 <button
-                  onClick={() => {
-                    setMode('PATIENT_REGISTER');
-                    setError('');
-                  }}
-                  className="text-teal-600 dark:text-teal-400 font-bold hover:underline"
+                  type="button"
+                  onClick={() => { setMode('PATIENT_REGISTER'); setError(''); }}
+                  className="font-bold text-teal-600 dark:text-teal-400 hover:underline"
                 >
-                  Register Patient
+                  Create Patient Account
                 </button>
               </p>
-              <p className="text-slate-500 dark:text-slate-400 font-medium">
-                Are you a medical doctor?{' '}
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Medical Professional?{' '}
                 <button
-                  onClick={() => {
-                    setMode('DOCTOR_REGISTER');
-                    setError('');
-                  }}
-                  className="text-cyan-600 dark:text-cyan-400 font-bold hover:underline"
+                  type="button"
+                  onClick={() => { setMode('DOCTOR_REGISTER'); setError(''); }}
+                  className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
                 >
-                  Register Doctor License
+                  Doctor Registration
                 </button>
               </p>
-            </div>
+            </>
           ) : (
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
               Already registered?{' '}
               <button
-                onClick={() => {
-                  setMode('LOGIN');
-                  setError('');
-                }}
-                className="text-teal-600 dark:text-teal-400 font-bold hover:underline"
+                type="button"
+                onClick={() => { setMode('LOGIN'); setError(''); }}
+                className="font-bold text-teal-600 dark:text-teal-400 hover:underline"
               >
-                Sign In
+                Sign In to Your Account
               </button>
             </p>
           )}
