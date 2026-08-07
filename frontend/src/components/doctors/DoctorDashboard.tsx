@@ -193,21 +193,32 @@ export const DoctorDashboard: React.FC<Props> = ({ onOpenConsultationRoom }) => 
                   )}
 
                   {consult.status === 'ACCEPTED' && (
-                    <button
-                      onClick={() => handleUpdateStatus(consult.id, 'COMPLETED')}
-                      className="px-3.5 py-1.5 rounded-lg dark:bg-slate-900 dark:hover:bg-slate-800 text-teal-700 dark:text-teal-300 border border-teal-500/30 text-xs font-bold shadow-sm transition-all"
-                    >
-                      Complete & Close Call
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleUpdateStatus(consult.id, 'COMPLETED')}
+                        className="px-3.5 py-1.5 rounded-lg dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700 text-xs font-bold shadow-sm transition-all"
+                      >
+                        End Consultation Session
+                      </button>
+                      <button
+                        onClick={() => onOpenConsultationRoom(consult)}
+                        className="px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 animate-pulse"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>🟢 Join Live Telehealth Call</span>
+                      </button>
+                    </>
                   )}
 
-                  <button
-                    onClick={() => onOpenConsultationRoom(consult)}
-                    className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Enter Telehealth Room</span>
-                  </button>
+                  {consult.status === 'PENDING' && (
+                    <button
+                      onClick={() => onOpenConsultationRoom(consult)}
+                      className="px-3 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Enter Telehealth Room</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => setSelectedConsultationForAccess(consult)}
