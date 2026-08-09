@@ -46,8 +46,10 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
 
   const peerRef = useRef<any>(null);
 
-  const remoteName = user?.role === 'DOCTOR' ? consultation.patient_name : consultation.doctor_name;
-  const myName = user?.full_name || (user?.role === 'DOCTOR' ? consultation.doctor_name : consultation.patient_name);
+  const remoteName = (user?.role === 'DOCTOR' ? consultation?.patient_name : consultation?.doctor_name) || 'Telehealth Participant';
+  const myName = user?.full_name || (user?.role === 'DOCTOR' ? consultation?.doctor_name : consultation?.patient_name) || 'User';
+  const initialLetter = remoteName.trim().charAt(0).toUpperCase() || 'U';
+  const myFirstName = myName.trim().split(' ')[0] || 'User';
 
   // Duration Timer
   useEffect(() => {
@@ -379,7 +381,7 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
               /* WAITING FOR REMOTE STREAM AVATAR CARD */
               <div className="w-full h-full max-h-[72vh] rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 flex flex-col items-center justify-center space-y-4 relative shadow-2xl">
                 <div className={`relative w-28 h-28 rounded-full bg-gradient-to-tr from-teal-500 to-cyan-500 text-slate-950 flex items-center justify-center font-extrabold text-4xl border-4 border-slate-800 shadow-2xl transition-all duration-150 ${audioLevel > 15 ? 'scale-105 shadow-teal-500/40 ring-4 ring-emerald-400' : ''}`}>
-                  {remoteName.charAt(4) || remoteName.charAt(0)}
+                  {initialLetter}
                 </div>
 
                 <div className="text-center space-y-1">
@@ -415,7 +417,7 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
                 />
                 <div className="absolute bottom-1 left-2 text-[9px] font-bold text-white bg-slate-900/80 px-1.5 py-0.5 rounded flex items-center gap-1">
                   <span className={`w-1.5 h-1.5 rounded-full ${audioLevel > 15 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} />
-                  <span>You ({myName.split(' ')[0]})</span>
+                  <span>You ({myFirstName})</span>
                 </div>
               </div>
             )}

@@ -38,6 +38,11 @@ class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySta
     console.error("Uncaught React Error:", error, errorInfo);
   }
 
+  public handleReset = () => {
+    this.setState({ hasError: false });
+    window.location.hash = 'home';
+  };
+
   public render() {
     if (this.state.hasError) {
       return (
@@ -45,19 +50,16 @@ class GlobalErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySta
           <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
             <Activity className="w-6 h-6 animate-pulse" />
           </div>
-          <h2 className="text-xl font-bold text-white">MediPro AI Application Reset</h2>
+          <h2 className="text-xl font-bold text-white">MediPro AI Application Session Active</h2>
           <p className="text-xs text-slate-400 max-w-md font-medium">
-            Session updated. Click the button below to reload your workspace cleanly.
+            Click below to return to your Home Overview.
           </p>
           <button
-            onClick={() => {
-              window.location.hash = 'home';
-              window.location.reload();
-            }}
+            onClick={this.handleReset}
             className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Reload Overview</span>
+            <span>Return to Overview</span>
           </button>
         </div>
       );

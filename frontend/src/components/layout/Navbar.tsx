@@ -142,9 +142,11 @@ export const Navbar: React.FC<Props> = ({
                   className="flex items-center gap-2 p-1.5 rounded-lg border transition-colors dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-slate-800 bg-slate-100 hover:bg-slate-200 border-slate-200"
                 >
                   <div className="w-7 h-7 rounded-md bg-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-xs border border-teal-500/30">
-                    {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+                    {user?.full_name ? user.full_name.trim().charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <span className="text-xs font-semibold dark:text-slate-200 text-slate-800 hidden sm:inline">{user?.full_name ? user.full_name.split(' ')[0] : 'User'}</span>
+                  <span className="text-xs font-semibold dark:text-slate-200 text-slate-800 hidden sm:inline">
+                    {user?.full_name ? user.full_name.trim().split(' ')[0] : 'User'}
+                  </span>
                 </button>
 
                 {showProfileMenu && (
