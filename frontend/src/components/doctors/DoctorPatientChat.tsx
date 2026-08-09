@@ -57,6 +57,25 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
     return () => clearInterval(timer);
   }, []);
 
+  // Poll Consultation Status to Auto-Close if Remote Participant Ends Call
+  useEffect(() => {
+    const checkStatusInterval = setInterval(async () => {
+      try {
+        const res = await api.get<Consultation[]>(`/api/doctors/consultations/my`);
+        const current = (res.data || []).find((c) => c.id === consultation.id);
+        if (current && (current.status === 'COMPLETED' || current.status === 'CANCELLED' || current.status === 'EXPIRED')) {
+          if (localStream) localStream.getTracks().forEach((t) => t.stop());
+          if (screenStream) screenStream.getTracks().forEach((t) => t.stop());
+          if (peerRef.current) {
+            try { peerRef.current.destroy(); } catch {}
+          }
+          onClose();
+        }
+      } catch {}
+    }, 3000);
+    return () => clearInterval(checkStatusInterval);
+  }, [consultation.id, localStream, screenStream]);
+
   // Initialize Native PeerJS WebRTC Direct Stream (0 Moderator Prompts, 0 Popups)
   useEffect(() => {
     let localMediaStream: MediaStream | null = null;

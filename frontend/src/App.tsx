@@ -125,7 +125,10 @@ const AppContent: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!user) return;
     fetchAppData();
+    const interval = setInterval(fetchAppData, 3000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const pendingRequestsCount = requests.filter((r) => r.status === 'PENDING').length;
