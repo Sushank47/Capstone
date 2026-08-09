@@ -17,7 +17,7 @@ import { DoctorPatientChat } from './components/doctors/DoctorPatientChat';
 import { IncomingCallModal } from './components/common/IncomingCallModal';
 import type { Document, AccessRequest, Consultation } from './types';
 import { api } from './services/api';
-import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope, RefreshCw } from 'lucide-react';
+import { Activity, Info, LogIn, CheckCircle2, Clock, MessageSquare, Video, Stethoscope, RefreshCw, Phone } from 'lucide-react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
