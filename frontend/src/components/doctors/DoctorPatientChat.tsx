@@ -238,8 +238,9 @@ export const DoctorPatientChat: React.FC<Props> = ({ consultation, onClose }) =>
   };
 
   const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
+    if (isNaN(secs) || secs < 0) return '00:00';
+    const m = Math.floor(secs / 60) || 0;
+    const s = Math.floor(secs % 60) || 0;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 

@@ -200,13 +200,14 @@ const AppContent: React.FC = () => {
         {user && consultations.length > 0 && (
           <div className="space-y-2">
             {consultations.map((consult) => {
-              const createdTime = new Date(consult.created_at).getTime();
-              const nowTime = new Date().getTime();
-              const elapsedSecs = Math.floor((nowTime - createdTime) / 1000);
+              const rawCreated = consult.created_at ? new Date(consult.created_at).getTime() : Date.now();
+              const safeCreatedTime = isNaN(rawCreated) ? Date.now() : rawCreated;
+              const nowTime = Date.now();
+              const elapsedSecs = Math.max(0, Math.floor((nowTime - safeCreatedTime) / 1000));
               const remainingSecs = Math.max(0, 180 - elapsedSecs);
 
-              const mins = Math.floor(remainingSecs / 60);
-              const secs = remainingSecs % 60;
+              const mins = Math.floor(remainingSecs / 60) || 0;
+              const secs = Math.floor(remainingSecs % 60) || 0;
               const formattedTime = `${mins}:${secs.toString().padStart(2, '0')}`;
 
               if (user?.role === 'PATIENT') {
